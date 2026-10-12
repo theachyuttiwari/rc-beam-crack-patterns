@@ -1,0 +1,39 @@
+{
+  "path": "/Users/achyuttiwari/Personal/career/research-papers/rc-beam-crack-patterns/figures/fig_samples.png",
+  "script": "src/figures_v2/fig_samples.py",
+  "git_sha": null,
+  "rendered": "2026-10-12",
+  "caption": "Example images for each class: two photographs and two traced crack maps per row, from different articles, scaled to equal cells. Row labels give the number of images in the class.",
+  "inputs": [
+    "data/manifest.csv"
+  ],
+  "status": "live",
+  "fit_violations": [],
+  "min_font_pt": 14.0,
+  "palette": "portal-data-v1",
+  "palette_offenders": [],
+  "font": "DM Sans",
+  "font_requested": "DM Sans",
+  "strings": [
+    "Each class mixes photographs and traced crack maps; shear-flexural is the rarest.",
+    "Source: 295 images, 275 specimens, 50 open-access articles",
+    "Flexural,\n149 images",
+    "Shear,\n115 images",
+    "Shear-flexural,\n31 images"
+  ],
+  "authored_strings": [
+    "Each class mixes photographs and traced crack maps; shear-flexural is the rarest.",
+    "Source: 295 images, 275 specimens, 50 open-access articles",
+    "Flexural,\n149 images",
+    "Shear,\n115 images",
+    "Shear-flexural,\n31 images"
+  ],
+  "figsize_in": [
+    12.0,
+    7.5
+  ],
+  "dpi": 200,
+  "theme": "deck-light",
+  "spec_version": "web-1",
+  "spec": "web"
+}

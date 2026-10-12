@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use this dataset or code, please cite the paper below."
+title: "rc-beam-crack-patterns"
+type: software
+authors:
+  - family-names: Tiwari
+    given-names: Achyut
+    email: achyut@geoliquefy.com
+    alias: theachyuttiwari
+repository-code: "https://github.com/theachyuttiwari/rc-beam-crack-patterns"
+license: MIT
+date-released: "2026-10-12"
+preferred-citation:
+  type: conference-paper
+  title: "Classification of Flexural, Shear and Shear-Flexural Crack Patterns in Reinforced Concrete Beams with HOG Features and Classical Machine Learning under Specimen-Level and Source-Level Validation"
+  authors:
+    - family-names: Tiwari
+      given-names: Achyut
+  year: 2026
+  collection-title: "Conference to be announced"
+  conference:
+    name: "TBD"

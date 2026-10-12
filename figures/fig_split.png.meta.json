@@ -1,0 +1,45 @@
+{
+  "path": "/Users/achyuttiwari/Personal/career/research-papers/rc-beam-crack-patterns/figures/fig_split.png",
+  "script": "src/figures_v2/fig_split.py",
+  "git_sha": null,
+  "rendered": "2026-10-12",
+  "caption": "Illustration of three ways to split images into training and test folds. Each row is a specimen, grouped under its article; each square is an image; hatched squares are the test fold. A drawing of the scheme, not data.",
+  "inputs": [
+    "data/manifest.csv"
+  ],
+  "status": "live",
+  "fit_violations": [],
+  "min_font_pt": 14.0,
+  "palette": "portal-data-v1",
+  "palette_offenders": [],
+  "font": "DM Sans",
+  "font_requested": "DM Sans",
+  "strings": [
+    "Only splitting by article keeps every image of a paper out of training.",
+    "Source: 295 images, 275 specimens, 50 open-access articles",
+    "by image",
+    "one article",
+    "by specimen",
+    "by article",
+    "train",
+    "test"
+  ],
+  "authored_strings": [
+    "Only splitting by article keeps every image of a paper out of training.",
+    "Source: 295 images, 275 specimens, 50 open-access articles",
+    "by image",
+    "one article",
+    "by specimen",
+    "by article",
+    "train",
+    "test"
+  ],
+  "figsize_in": [
+    12.0,
+    7.5
+  ],
+  "dpi": 200,
+  "theme": "deck-light",
+  "spec_version": "web-1",
+  "spec": "web"
+}

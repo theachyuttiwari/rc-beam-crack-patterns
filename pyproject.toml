@@ -1,0 +1,11 @@
+[project]
+name = "rc_beam_crack_patterns"
+version = "0.1.0"
+description = "Crack-pattern images of RC beams with author-stated failure modes, and a HOG + classical ML baseline with specimen-level and article-level validation."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Achyut Tiwari", email = "achyut@geoliquefy.com" }]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

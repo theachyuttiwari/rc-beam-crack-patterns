@@ -1,0 +1,46 @@
+{
+ "images": 375,
+ "labels": {
+  "flexural": 149,
+  "shear": 115,
+  "unknown": 80,
+  "shear_flexural": 31
+ },
+ "specimens": {
+  "flexural": 136,
+  "shear": 103,
+  "shear_flexural": 31
+ },
+ "papers": 85,
+ "needs_manual": 80,
+ "grid_flagged": 24,
+ "composite_unsplit": 77,
+ "excluded": 77,
+ "davoudi_images": 331,
+ "group_level": 92,
+ "licences": {
+  "CC BY 4.0": 412
+ },
+ "modality_by_label": {
+  "flexural": {
+   "photo": 137,
+   "map": 34
+  },
+  "shear": {
+   "photo": 98,
+   "map": 31
+  },
+  "shear_flexural": {
+   "map": 7,
+   "photo": 25
+  },
+  "unknown": {
+   "photo": 61,
+   "map": 19
+  }
+ },
+ "stats": {
+  "auto_vs_reviewer_conflict": 1
+ },
+ "note": "2026-10-12: 37 composite panels moved to manifest_excluded.csv"
+}

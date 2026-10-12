@@ -1,0 +1,51 @@
+{
+  "path": "/Users/achyuttiwari/Personal/career/research-papers/rc-beam-crack-patterns/figures/fig_pipeline.png",
+  "script": "src/figures_v2/fig_pipeline.py",
+  "git_sha": null,
+  "rendered": "2026-10-12",
+  "caption": "Processing chain: grey-scale, CLAHE contrast, 128 by 256 letterbox, blur and black-hat; HOG with 9 bins, 16 by 16 pixel cells and 2 by 2 blocks (3,780 values); five classifiers; folds grouped by specimen or by article; accuracy, macro precision, recall and F1, and confusion matrices.",
+  "inputs": [
+    "data/manifest.csv"
+  ],
+  "status": "live",
+  "fit_violations": [],
+  "min_font_pt": 14.0,
+  "palette": "portal-data-v1",
+  "palette_offenders": [],
+  "font": "DM Sans",
+  "font_requested": "DM Sans",
+  "strings": [
+    "Each crack image is cleaned, reduced to edge directions, and scored by five classifiers.",
+    "Source: 295 images, 275 specimens, 50 open-access articles",
+    "Image",
+    "Preprocess",
+    "HOG",
+    "3,780 values",
+    "Classifier",
+    "SVM, RF, kNN,\nDT, XGBoost",
+    "Folds",
+    "by specimen\nor article",
+    "Scores"
+  ],
+  "authored_strings": [
+    "Each crack image is cleaned, reduced to edge directions, and scored by five classifiers.",
+    "Source: 295 images, 275 specimens, 50 open-access articles",
+    "Image",
+    "Preprocess",
+    "HOG",
+    "3,780 values",
+    "Classifier",
+    "SVM, RF, kNN,\nDT, XGBoost",
+    "Folds",
+    "by specimen\nor article",
+    "Scores"
+  ],
+  "figsize_in": [
+    12.0,
+    6.75
+  ],
+  "dpi": 200,
+  "theme": "deck-light",
+  "spec_version": "web-1",
+  "spec": "web"
+}
