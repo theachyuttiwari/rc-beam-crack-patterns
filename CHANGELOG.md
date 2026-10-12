@@ -9,4 +9,4 @@ First public release.
 - Results of the three runs (main, no black-hat, orientation histogram) in `results/`.
 - Eight paper figures in `figures/` with provenance sidecars, built by `src/figures_v2/`.
 - The paper: `paper/main.tex`, generated tables, `main.pdf` and `main.docx`.
-- `make data-check`, `make train`, `make tables`, `make figures`, `make paper`, `make reproduce`, and a pytest suite.
+- `make data-check`, `make train`, `make tables`, `make figures`, `make paper`, `make reproduce`, and a pytest suite that GitHub Actions runs on every push.

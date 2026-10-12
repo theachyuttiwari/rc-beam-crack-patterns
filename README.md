@@ -32,10 +32,11 @@ The 70% result comes from beams of the same test programme appearing on both sid
 | `src/` | Code: `config.py`, `preprocess.py`, `features.py`, `train_eval.py`, `make_tables.py`, `make_ablation_table.py`, `data_check.py`, `drop_composites.py`, `ste_lint.py`; draft figure scripts `make_figures.py`, `make_figures_extra.py`. |
 | `src/figures_v2/` | The eight paper figures, one script each. Each script reads result files, re-checks the numbers it draws, and writes a `.meta.json` sidecar. |
 | `tests/` | pytest suite. |
+| `.github/workflows/ci.yml` | Runs the data check and the tests on every push. |
 | `results/main/` | Main run (HOG). Metrics, confusion matrices, predictions, leave-one-article-out, timing, environment. |
 | `results/noblackhat/` | Ablation: HOG without black-hat enhancement. |
 | `results/orient/` | Ablation: 18-bin orientation histogram. |
-| `paper/` | `main.tex`, `tables/` (generated), `build.sh`, `main.pdf`, `main.docx`, cold-read record. |
+| `paper/` | `main.tex`, `tables/` (generated), `build.sh`, `main.pdf`, `main.docx`. |
 | `figures/` | The eight paper figures as PNG and PDF, each with a `.png.meta.json` provenance sidecar. |
 | `refs/` | `references.bib` and `literature.md`. |
 | `Makefile` | `setup`, `data-check`, `test`, `train`, `tables`, `figures`, `figures-draft`, `paper`, `lint`, `reproduce`, `clean`. |
