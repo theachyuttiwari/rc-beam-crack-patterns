@@ -10,7 +10,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--hog", default="results/main", help="results dir of the main run")
 ap.add_argument("--noblackhat", default="results/noblackhat")
 ap.add_argument("--orient", default="results/orient")
-ap.add_argument("--out", default="paper/tables", help="output dir for the .tex files")
+ap.add_argument("--out", default="results/tables", help="output dir for the .tex files")
 a = ap.parse_args()
 os.makedirs(a.out, exist_ok=True)
 RUNS = [("Hog", a.hog), ("NoBH", a.noblackhat), ("Orient", a.orient)]

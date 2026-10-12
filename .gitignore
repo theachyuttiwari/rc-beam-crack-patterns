@@ -4,6 +4,8 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .DS_Store
+# the paper is kept out of this repository
+paper/
 # local run outputs (committed results live in results/main, results/noblackhat, results/orient)
 results/local*/
 results/*.log

@@ -1,6 +1,6 @@
-"""Write the LaTeX tables and number macros for the paper from results/ and the manifest.
+"""Write the LaTeX tables and number macros from results/ and the manifest.
 
-Usage (from the repo root):  python make_tables.py --manifest data/manifest.csv --results results/main --out paper/tables
+Usage (from the repo root):  python make_tables.py --manifest data/manifest.csv --results results/main --out results/tables
 Every number in the paper's tables comes from here; nothing is typed by hand.
 """
 import argparse
@@ -118,7 +118,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--manifest", default="data/manifest.csv")
     ap.add_argument("--results", default="results/main")
-    ap.add_argument("--out", default="paper/tables")
+    ap.add_argument("--out", default="results/tables")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     m = pd.read_csv(a.manifest)

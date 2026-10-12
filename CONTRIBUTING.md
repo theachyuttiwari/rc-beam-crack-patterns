@@ -17,7 +17,6 @@ python -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt
 make data-check     # manifest schema, label words, every file exists
 python -m pytest -q # unit tests
-make lint           # style check of paper/main.tex, if present
 ```
 
 ## Code changes

@@ -1,0 +1,28 @@
+\begin{table*}[t]
+\centering
+\caption{Classification performance under three validation schemes (mean $\pm$ SD over five outer folds, in \%). Image-level folds may split a specimen; specimen-level folds never do; article-level folds keep every image of a source article in one fold.}
+\label{tab:metrics}
+\begin{tabular}{l l r r r r}
+\toprule
+Split & Classifier & Accuracy & Precision (macro) & Recall (macro) & F1 (macro) \\
+\midrule
+Image-level & SVM & 75.6 $\pm$ 3.9 & 72.1 $\pm$ 9.5 & 65.9 $\pm$ 7.5 & 67.1 $\pm$ 8.4 \\
+ & RF & 69.2 $\pm$ 5.0 & 62.1 $\pm$ 9.0 & 60.1 $\pm$ 9.2 & 59.7 $\pm$ 9.2 \\
+ & kNN & 72.5 $\pm$ 8.0 & 67.2 $\pm$ 12.0 & 65.4 $\pm$ 15.4 & 64.5 $\pm$ 13.5 \\
+ & DT & 50.8 $\pm$ 5.6 & 44.4 $\pm$ 4.5 & 45.3 $\pm$ 5.7 & 44.1 $\pm$ 4.9 \\
+ & XGBoost & 69.8 $\pm$ 2.8 & 63.7 $\pm$ 10.2 & 57.9 $\pm$ 5.9 & 58.2 $\pm$ 6.8 \\
+\midrule
+Specimen-level & SVM & 73.6 $\pm$ 3.7 & 73.1 $\pm$ 7.0 & 63.6 $\pm$ 3.6 & 65.8 $\pm$ 3.9 \\
+ & RF & 67.4 $\pm$ 4.5 & 70.3 $\pm$ 10.3 & 59.1 $\pm$ 4.9 & 61.9 $\pm$ 6.0 \\
+ & kNN & 69.4 $\pm$ 4.7 & 71.1 $\pm$ 10.2 & 61.5 $\pm$ 3.1 & 63.6 $\pm$ 4.8 \\
+ & DT & 52.5 $\pm$ 7.4 & 46.0 $\pm$ 6.5 & 45.7 $\pm$ 6.5 & 45.6 $\pm$ 6.6 \\
+ & XGBoost & 68.1 $\pm$ 6.1 & 63.7 $\pm$ 17.6 & 55.6 $\pm$ 8.3 & 56.8 $\pm$ 10.7 \\
+\midrule
+Article-level & SVM & 45.4 $\pm$ 8.5 & 27.4 $\pm$ 7.7 & 32.1 $\pm$ 6.6 & 28.5 $\pm$ 6.8 \\
+ & RF & 47.8 $\pm$ 12.0 & 32.0 $\pm$ 10.0 & 34.1 $\pm$ 8.9 & 31.5 $\pm$ 8.7 \\
+ & kNN & 45.1 $\pm$ 4.9 & 25.6 $\pm$ 7.0 & 30.6 $\pm$ 3.4 & 25.5 $\pm$ 4.3 \\
+ & DT & 44.4 $\pm$ 6.1 & 35.2 $\pm$ 8.2 & 33.4 $\pm$ 4.4 & 31.9 $\pm$ 4.7 \\
+ & XGBoost & 48.9 $\pm$ 9.9 & 31.7 $\pm$ 7.3 & 34.8 $\pm$ 7.2 & 31.7 $\pm$ 7.8 \\
+\bottomrule
+\end{tabular}
+\end{table*}

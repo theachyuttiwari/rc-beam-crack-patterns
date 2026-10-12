@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\setlength{\tabcolsep}{3.5pt}
+\caption{Ablation of the descriptor: macro F1 (mean over five folds, in \%) under specimen-level and article-level folds for the full HOG, HOG without black-hat enhancement, and a global 18-bin orientation histogram that discards position.}
+\label{tab:ablation}
+\begin{tabular}{l rrr rrr}
+\toprule
+ & \multicolumn{3}{c}{Specimen-level} & \multicolumn{3}{c}{Article-level} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Classifier & HOG & no BH & Orient. & HOG & no BH & Orient. \\
+\midrule
+SVM & 65.8 & 70.2 & 52.8 & 28.5 & 29.5 & 40.1 \\
+RF & 61.9 & 61.2 & 52.7 & 31.5 & 32.8 & 39.5 \\
+kNN & 63.6 & 65.1 & 52.9 & 25.5 & 28.5 & 37.5 \\
+DT & 45.6 & 52.7 & 38.2 & 31.9 & 35.2 & 32.5 \\
+XGBoost & 56.8 & 60.2 & 52.5 & 31.7 & 32.5 & 37.1 \\
+\bottomrule
+\end{tabular}
+\end{table}

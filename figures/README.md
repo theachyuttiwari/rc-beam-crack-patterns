@@ -1,6 +1,6 @@
 # Figures
 
-The eight figures of the paper, as PNG (what the DOCX embeds) and PDF (what the LaTeX build embeds).
+The eight figures of the paper, as PNG and PDF.
 
 Each PNG has a `.png.meta.json` sidecar: the script that drew it, its inputs (result files under `results/` and the manifest), the caption, and the checks it passed (word count, font floor, palette, nothing off the canvas).
 

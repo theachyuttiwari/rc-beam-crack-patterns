@@ -1,0 +1,16 @@
+\begin{table}[t]
+\centering
+\caption{Leave-one-source-out: each article is held out in turn and the model is trained on all the others. Out-of-source predictions are pooled over all articles (in \%).}
+\label{tab:loso}
+\begin{tabular}{l r r r r}
+\toprule
+Classifier & Accuracy & Precision & Recall & F1 (macro) \\
+\midrule
+SVM & 41.7 & 25.4 & 29.0 & 26.5 \\
+RF & 46.8 & 30.5 & 33.7 & 31.9 \\
+kNN & 40.0 & 23.8 & 27.6 & 24.7 \\
+DT & 45.8 & 38.1 & 38.2 & 37.9 \\
+XGBoost & 45.1 & 28.7 & 32.0 & 29.8 \\
+\bottomrule
+\end{tabular}
+\end{table}
