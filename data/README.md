@@ -21,14 +21,14 @@ Image paths in both manifests are relative to the repository root.
 | `source_slug` | Source article, `paper-<PMCID>`. |
 | `specimen_id` | Beam name used by the authors (for example `M1B`). The group id for splitting is `source_slug::specimen_id`. |
 | `label` | `flexural`, `shear`, `shear_flexural` or `unknown`. |
-| `label_basis` | `paper_text` (the authors state the mode) or `needs_manual` (no label yet). |
+| `label_basis` | `paper_text` (the authors state one of the three modes), `other_mode` (the authors state a mode outside the three classes, such as debonding or rupture of the strengthening; `label` is `unknown`) or `needs_manual` (the authors state no mode for this specimen). |
 | `licence` | Licence of the source article. All rows: CC BY 4.0. |
 | `citation` | Full citation of the source article. |
 | `notes` | Free text: figure number, source file, original size, crop box, reviewer comments. |
 | `beam_type` | `plain_RC`, `FRC`, `FRP_reinforced`, `strengthened_FRP`, `corroded`, `fire_damaged`, `deep_beam`, `with_openings`, `other`. |
 | `evidence_quote` | Verbatim sentence from the article that states the failure mode. |
 | `evidence_location` | Where in the article the quote is. |
-| `evidence_scope` | `per_specimen` (the text names this beam) or `group_level` (the text states a mode for a group of beams that includes it). Group-level labels are cruder. |
+| `evidence_scope` | `per_specimen` (the quote or its location, such as a table row, names this beam) or `group_level` (the quote states a mode for a group of beams that includes it). Group-level labels are cruder. `make data-check` rejects `per_specimen` evidence that does not name the specimen. |
 | `image_ok` | `yes` after review of the crop. |
 | `modality` | `photo` (photograph of the beam face) or `map` (traced or drawn crack map). |
 
@@ -36,7 +36,7 @@ Image paths in both manifests are relative to the repository root.
 
 ## Counts
 
-375 images from 67 articles. 295 images carry a label. 80 are `unknown`. 77 panels are in the excluded manifest, 37 of them composite figures whose per-specimen crops are in `manifest.csv`. 64 labelled images have `group_level` evidence.
+375 images from 67 articles. 277 images from 257 specimens in 51 articles carry a label. 98 are `unknown`: 24 of them have an author-stated mode outside the three classes (`other_mode`). The counts are in `summary.json`. 77 panels are in the excluded manifest, 37 of them composite figures whose per-specimen crops are in `manifest.csv`. 142 labelled images have `group_level` evidence.
 
 | label | images | specimens | photo | map |
 |---|---|---|---|---|
@@ -55,6 +55,7 @@ Composite figures that show several specimens in one image were moved from `mani
 2. A reviewer reads the article text and tables and records the failure mode the authors state for that specimen. The mapping is: flexural (flexural or bending failure, steel yielding then concrete crushing), shear (shear failure, diagonal tension, shear compression), shear_flexural (the authors say flexure-shear or combined).
 3. Each label row has a verbatim quote (`evidence_quote`) and its location. The quote was re-checked against the article XML (ignoring case and white space). A row that failed the check was set to `unknown` and `needs_manual`.
 4. `evidence_scope` records whether the quote names this specimen or a group.
+5. A label pass on 2026-10-12 re-read every row against its article. It moved 4 rows from `shear_flexural` to `shear`, labelled 6 rows that the articles state a mode for, and moved 24 rows to `unknown`. When the external strengthening governs failure (debonding, rupture of the FRP, TRM or SRG system, cover separation, bond failure), the row is `unknown` with `label_basis=other_mode`, even when the authors use the word "flexural". The notes column of each changed row starts its change with `audit 2026-10-12`. `label_changes_2026-10-12.csv` lists every changed row with its old and new values and the audit's reason.
 
 ## Caveats
 

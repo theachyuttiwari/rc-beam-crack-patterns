@@ -2,50 +2,50 @@
  "images": 375,
  "articles": 67,
  "labels": {
-  "flexural": 149,
-  "shear": 115,
-  "shear_flexural": 31,
-  "unknown": 80
+  "flexural": 137,
+  "shear": 116,
+  "shear_flexural": 24,
+  "unknown": 98
  },
  "label_basis": {
-  "needs_manual": 80,
-  "other_mode": 0,
-  "paper_text": 295
+  "needs_manual": 74,
+  "other_mode": 24,
+  "paper_text": 277
  },
  "labelled": {
-  "images": 295,
-  "specimens": 275,
-  "articles": 50,
+  "images": 277,
+  "specimens": 257,
+  "articles": 51,
   "specimens_per_class": {
-   "flexural": 138,
-   "shear": 106,
-   "shear_flexural": 31
+   "flexural": 126,
+   "shear": 107,
+   "shear_flexural": 24
   },
   "articles_per_class": {
    "flexural": 35,
-   "shear": 23,
-   "shear_flexural": 11
+   "shear": 25,
+   "shear_flexural": 9
   },
-  "single_class_articles": 33,
-  "majority_rate": 0.5051,
+  "single_class_articles": 35,
+  "majority_rate": 0.4946,
   "evidence_scope": {
-   "group_level": 64,
-   "per_specimen": 231
+   "group_level": 142,
+   "per_specimen": 135
   },
   "modality_by_class": {
    "flexural": {
-    "map": 30,
-    "photo": 119,
+    "map": 32,
+    "photo": 105,
     "photo+map": 0
    },
    "shear": {
-    "map": 28,
-    "photo": 87,
+    "map": 24,
+    "photo": 92,
     "photo+map": 0
    },
    "shear_flexural": {
     "map": 7,
-    "photo": 24,
+    "photo": 17,
     "photo+map": 0
    }
   }

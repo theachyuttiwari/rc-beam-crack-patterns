@@ -33,6 +33,20 @@ LICENCES = {"CC BY 4.0", "CC BY 3.0"}
 PANELS = "data/panels/"
 
 
+SEP = r"[\s_\-\u2010-\u2015]*"   # ID separators may differ between the manifest and the article
+
+
+def names_specimen(sid, text):
+    """True if text (a quote, or a location such as a table row) names the specimen: its ID, the ID without a '(...)' suffix, or its '#n' tag."""
+    cands = {sid, re.sub(r"\s*\(.*\)$", "", sid)} | set(re.findall(r"#\d+", sid))
+    for c in cands:
+        toks = [t for t in re.split(r"[\s_\-\u2010-\u2015]+", c.lower()) if t]
+        if toks and re.search(r"(?<![0-9a-z])" + SEP.join(map(re.escape, toks)) + r"(?![0-9a-z])",
+                              text.lower()):
+            return True
+    return False
+
+
 def group_ids(m):
     return m["source_slug"].astype(str) + "::" + m["specimen_id"].astype(str)
 
@@ -60,6 +74,9 @@ def check_rows(m, root):
             for col in ("evidence_quote", "evidence_location", "evidence_scope"):
                 if not r[col].strip():
                     errors.append(f"{where}: {r['label_basis']} row needs {col}")
+            if r["evidence_scope"] == "per_specimen" and not any(
+                    names_specimen(r["specimen_id"], r[c]) for c in ("evidence_quote", "evidence_location")):
+                errors.append(f"{where}: per_specimen evidence does not name {r['specimen_id']!r}")
         p = r["image_path"]
         parts = p.split("/")
         if not p.startswith(PANELS) or ".." in parts or len(parts) != 4:
