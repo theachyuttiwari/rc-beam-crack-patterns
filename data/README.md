@@ -71,7 +71,7 @@ Composite figures that show several specimens in one image were moved from `mani
 
 ## The Davoudi set (not included)
 
-A separate crack-map dataset of 331 load-step maps from shear-critical tests (Davoudi et al., Mendeley Data, DOI 10.17632/vkgw6gg8v3.1, CC BY 4.0) has no per-specimen failure label. It is not part of this dataset and is not redistributed here. To use it, download it from https://doi.org/10.17632/vkgw6gg8v3.1 and keep it outside `data/panels/`.
+A separate crack-image dataset from shear-critical tests (Davoudi et al., Mendeley Data, DOI 10.17632/vkgw6gg8v3.1, CC BY 4.0) holds 867 images of 129 specimens from 17 test programmes; 43 specimens have shear reinforcement. It has no per-specimen failure label in our three classes. It is not part of this dataset and is not redistributed here. To use it, download it from https://doi.org/10.17632/vkgw6gg8v3.1 and keep it outside `data/panels/`.
 
 ## Add images
 
