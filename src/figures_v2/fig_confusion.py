@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from _common import (BASE, CLASS_NAMES, CLASSES, CLFS, CLF_NAMES, INK, ROOT,
-                     finish, frame, source_line, start)
+                     finish, frame, labelled_manifest, source_line, start)
 
 SCRIPT = __file__
 
@@ -19,9 +19,10 @@ def load():
 
 
 def verify(cm):
+    counts = labelled_manifest().label.value_counts()
     for c, m in cm.items():
-        assert m.sum() == 295, c
-        assert list(m.sum(1)) == [149, 115, 31], c
+        assert m.sum() == counts.sum(), c
+        assert list(m.sum(1)) == [counts[k] for k in CLASSES], c
         wrong = 1 - m[2, 2] / m[2].sum()
         assert 0.55 <= wrong <= 0.8, (c, wrong)    # "more than half"
 

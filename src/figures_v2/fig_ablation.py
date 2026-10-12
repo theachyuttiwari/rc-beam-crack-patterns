@@ -9,12 +9,14 @@ DESC = [("HOG", "results/main", INK, "o"),
 
 
 def verify():
-    # claim: histogram below HOG by specimen, above HOG by article, all five
+    # claim: histogram below HOG by specimen and above HOG by article, four of five each
+    below = above = 0
     for c in CLFS:
         sp = [fold_stats(d, "specimen", c, "f1_macro")[0] for _, d, _, _ in DESC]
         ar = [fold_stats(d, "article", c, "f1_macro")[0] for _, d, _, _ in DESC]
-        assert sp[2] < sp[0], (c, sp)
-        assert ar[2] > ar[0], (c, ar)
+        below += sp[2] < sp[0]
+        above += ar[2] > ar[0]
+    assert (below, above) == (4, 4), (below, above)
 
 
 def draw():
@@ -37,7 +39,7 @@ if __name__ == "__main__":
     verify()
     fig, fr = draw()
     finish(fig, fr, "fig_ablation",
-           claim="The plain orientation histogram trails HOG by specimen but beats it by article, for every classifier.",
+           claim="Dropping position lowers macro F1 by specimen and raises it by article, for four of five classifiers.",
            quantity="mean ± SD over five folds",
            source=source_line(),
            caption=("Macro F1 of five classifiers on three descriptors: HOG, "

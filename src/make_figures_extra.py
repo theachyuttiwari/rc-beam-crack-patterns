@@ -51,12 +51,21 @@ def fig_schemes(out, res, manifest):
     r = fold_metrics(res)
     lo = loso_pooled(res)
     maj = majority(manifest)
+    bp = Path(res).parent / "analysis" / "baselines.csv"
+    base = pd.read_csv(bp).set_index(["scheme", "model"]) if bp.exists() else None
     fig, axes = plt.subplots(1, 2, figsize=(W2, 2.4), sharey=True)
     x = np.arange(len(CLF_ORDER))
     for ax, (k, title) in zip(axes, [("accuracy", "Accuracy"), ("f1_macro", "Macro F1")]):
-        if k == "accuracy":  # the majority-class line applies to accuracy only
-            ax.axhline(maj, color=MUTED, lw=0.8, ls="--")
-            ax.text(len(CLF_ORDER) - 0.6, maj + 0.015, "majority class", color=MUTED, fontsize=7, ha="right")
+        # pixel-free baselines on the same folds (results/analysis): majority class and source prior
+        ref = [("majority class", base.loc[("specimen", "majority"), k] if base is not None else (maj if k == "accuracy" else None), "--"),
+               ("source prior, specimen folds", base.loc[("specimen", "article_prior"), k] if base is not None else None, ":")]
+        for lab, v, ls in ref:
+            if v is None:
+                continue
+            ax.axhline(v, color=MUTED, lw=0.8, ls=ls, zorder=1)
+            below = lab == "majority class"
+            ax.text(-0.45, v - 0.015 if below else v + 0.015, lab, color=INK2, fontsize=7, ha="left",
+                    va="top" if below else "bottom")
         for j, (scheme, lab, col, mk) in enumerate(SCHEMES):
             off = (j - 1.5) * 0.18
             if scheme == "loso":
@@ -75,8 +84,6 @@ def fig_schemes(out, res, manifest):
     handles = [Line2D([], [], color=col, marker=mk, ls="", ms=4) for _, _, col, mk in SCHEMES]
     fig.legend(handles, [lab for _, lab, _, _ in SCHEMES], loc="lower center", ncol=4, frameon=False,
                bbox_to_anchor=(0.5, -0.1))
-    fig.text(0.5, -0.2, "Folds: mean +/- SD over 5 outer folds. Leave-one-article-out: pooled over all held-out articles.",
-             ha="center", color=MUTED, fontsize=7)
     fig.subplots_adjust(wspace=0.1)
     save(fig, out, "fig_schemes")
 

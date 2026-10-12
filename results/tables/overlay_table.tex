@@ -1,0 +1,30 @@
+\begin{table}[t]
+\centering
+\caption{Out-of-fold specimen-level and article-level results on three subsets of the labelled images (in \%): all images, images without failure-mode text, and images with no overlay. Maj.\ is the share of the largest class in the subset.}
+\label{tab:overlay}
+\begin{tabular}{l l r r r r}
+\toprule
+ & & \multicolumn{2}{c}{Specimen} & \multicolumn{2}{c}{Article} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}
+Subset ($n$, Maj.) & Classifier & Acc. & F1 & Acc. & F1 \\
+\midrule
+All (273, 50.2) & SVM & 70.7 & 59.8 & 53.5 & 36.4 \\
+ & RF & 69.2 & 61.5 & 54.6 & 37.3 \\
+ & kNN & 69.6 & 57.9 & 45.4 & 26.6 \\
+ & DT & 52.0 & 43.9 & 44.3 & 34.5 \\
+ & XGBoost & 68.9 & 59.6 & 56.0 & 38.5 \\
+\midrule
+No mode text (212, 55.7) & SVM & 71.7 & 48.7 & 58.0 & 38.2 \\
+ & RF & 70.3 & 47.8 & 56.6 & 37.8 \\
+ & kNN & 74.1 & 50.1 & 52.8 & 30.6 \\
+ & DT & 53.8 & 38.4 & 44.8 & 31.7 \\
+ & XGBoost & 70.8 & 47.7 & 58.5 & 39.3 \\
+\midrule
+No overlay (70, 67.1) & SVM & 70.0 & 46.0 & 64.3 & 41.1 \\
+ & RF & 64.3 & 41.8 & 57.1 & 37.9 \\
+ & kNN & 72.9 & 48.2 & 55.7 & 34.4 \\
+ & DT & 42.9 & 29.6 & 40.0 & 28.6 \\
+ & XGBoost & 64.3 & 42.2 & 55.7 & 35.5 \\
+\bottomrule
+\end{tabular}
+\end{table}

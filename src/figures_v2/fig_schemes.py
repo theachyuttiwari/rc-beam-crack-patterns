@@ -4,9 +4,16 @@ import pandas as pd
 from sklearn.metrics import accuracy_score, f1_score
 
 from _common import (BASE, CLFS, INK, MAJORITY, MUTED, OBS, ROOT, dotplot,
-                     finish, fold_stats, frame, source_line, start)
+                     finish, fold_stats, frame, labelled_manifest, source_line,
+                     start)
 
 SCRIPT = __file__
+
+
+N_LAB = len(labelled_manifest())
+BASES = pd.read_csv(ROOT / "results/analysis/baselines.csv").set_index(["scheme", "model"])
+PRIOR = float(BASES.loc[("specimen", "article_prior"), "accuracy"])   # source prior, specimen folds
+BOOT = pd.read_csv(ROOT / "results/analysis/bootstrap.csv")
 
 
 def load():
@@ -15,18 +22,19 @@ def load():
     pooled = {"acc": {}, "f1": {}}
     for c in CLFS:
         g = p[p.classifier == c]
-        assert len(g) == 295, (c, len(g))
+        assert len(g) == N_LAB, (c, len(g))
         pooled["acc"][c] = (accuracy_score(g.true, g.pred), 0.0)
         pooled["f1"][c] = (f1_score(g.true, g.pred, average="macro"), 0.0)
     return pooled
 
 
 def verify(pooled):
-    assert abs(MAJORITY - 0.505) < 5e-4
+    assert abs(MAJORITY - BASES.loc[("specimen", "majority"), "accuracy"]) < 0.02
     for c in CLFS:
-        a = fold_stats("results/main", "article", c, "accuracy")[0]
-        assert a < MAJORITY, (c, a)                      # claim: every classifier
-        assert pooled["acc"][c][0] < MAJORITY, c         # pooled too
+        a = fold_stats("results/main", "specimen", c, "accuracy")[0]
+        assert a < PRIOR, (c, a)                         # claim: every classifier trails the prior
+        b = BOOT[(BOOT.scheme == "article") & (BOOT.classifier == c) & (BOOT.against == "majority")].iloc[0]
+        assert b.accuracy_lo < 0 < b.accuracy_hi, c      # claim: none clearly above majority
 
 
 def draw(pooled):
@@ -45,6 +53,9 @@ def draw(pooled):
     ax1.axvline(MAJORITY, color=MUTED, lw=1.5, ls=(0, (4, 3)), zorder=1)
     ax1.text(MAJORITY + 0.01, 4.8, f"majority {MAJORITY * 100:.1f} %",
              ha="left", va="center", color=INK, fontsize=14)
+    ax1.axvline(PRIOR, color=BASE, lw=1.5, ls=(0, (1, 2)), zorder=1)
+    ax1.text(PRIOR + 0.01, 4.55, f"source prior\n{PRIOR * 100:.1f} %",
+             ha="left", va="center", color=INK, fontsize=14, linespacing=1.1)
     ax1.set_xticks([0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
     ax1.set_xticklabels(["30", "", "50", "", "70", "", "90", ""])
     ax1.set_xlabel("Accuracy, %")
@@ -64,13 +75,16 @@ if __name__ == "__main__":
     verify(pooled)
     fig, fr = draw(pooled)
     finish(fig, fr, "fig_schemes",
-           claim="Folding by article drops every classifier below the majority rate of 50.5 %.",
+           claim="By specimen every classifier trails a source prior that sees no crack; by article none clearly beats the majority.",
            quantity="mean ± SD over five folds",
            source=source_line(),
            caption=("Accuracy and macro F1 of five classifiers under image-, "
                     "specimen- and article-level cross-validation (mean and "
                     "SD over five folds) and pooled leave-one-article-out. "
-                    "The dashed line is the majority-class accuracy, 149/295."),
+                    "The dashed line is the majority-class accuracy. The dotted line "
+                    "is the source prior under specimen-level folds: each test image "
+                    "gets the majority label of its source in the training part."),
            inputs=["data/manifest.csv", "results/main/metrics.csv",
-                   "results/main/predictions.csv"],
+                   "results/main/predictions.csv", "results/analysis/baselines.csv",
+                   "results/analysis/bootstrap.csv"],
            script=SCRIPT)

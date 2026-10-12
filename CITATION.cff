@@ -11,12 +11,10 @@ repository-code: "https://github.com/theachyuttiwari/rc-beam-crack-patterns"
 license: MIT
 date-released: "2026-10-12"
 preferred-citation:
-  type: conference-paper
-  title: "Classification of Flexural, Shear and Shear-Flexural Crack Patterns in Reinforced Concrete Beams with HOG Features and Classical Machine Learning under Specimen-Level and Source-Level Validation"
+  type: unpublished
+  title: "Do Crack-Pattern Classifiers Learn the Failure Mode? Specimen-Level and Source-Level Validation of HOG Features and Classical Machine Learning for Reinforced Concrete Beams"
   authors:
     - family-names: Tiwari
       given-names: Achyut
   year: 2026
-  collection-title: "Conference to be announced"
-  conference:
-    name: "TBD"
+  notes: "Manuscript in preparation."

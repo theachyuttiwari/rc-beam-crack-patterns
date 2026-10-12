@@ -1,9 +1,9 @@
 {
   "path": "figures/fig_hog.png",
   "script": "src/figures_v2/fig_hog.py",
-  "git_sha": "d898c42",
+  "git_sha": "11f933a",
   "rendered": "2026-10-12",
-  "caption": "One image per class: the original, the preprocessed 128 by 256 image (CLAHE, resize, blur, black-hat) and the HOG picture computed from it, drawn with the project's own preprocessing and feature code. Images (numbered in the figure) are cropped and rescaled from: (1) Rahim et al. (2020), doi:10.3390/ma13122804, specimen B1b, CC BY 4.0; (2) Liu and Thermou (2024), doi:10.3390/ma17215227, specimen B-N, CC BY 4.0; (3) Hisbani et al. (2025), doi:10.1038/s41598-025-00146-8, specimen M4D6-P6, CC BY 4.0.",
+  "caption": "One image per class: the original, the preprocessed 128 by 256 image (CLAHE, resize, blur, black-hat) and the HOG picture computed from it, drawn with the project's own preprocessing and feature code. Images (numbered in the figure) are cropped and rescaled from: (1) Murthy et al. (2024), doi:10.1038/s41598-024-51164-x, specimen GGBS20-Vf1, CC BY 4.0; (2) Yoo (2022), doi:10.3390/ma15093091, specimen BS-2.5T, CC BY 4.0; (3) Hadi et al. (2026), doi:10.3390/ma19173660, specimen BTRM-3-NA, CC BY 4.0.",
   "inputs": [
     "data/manifest.csv"
   ],
@@ -16,7 +16,7 @@
   "font_requested": "DM Sans",
   "strings": [
     "Preprocessing makes cracks bright lines, and HOG records their direction in every 16-pixel cell.",
-    "Source: 295 images, 275 specimens, 50 open-access articles",
+    "Source: 273 images, 253 specimens, 51 open-access articles",
     "Image",
     "Preprocessed",
     "HOG",
@@ -29,7 +29,7 @@
   ],
   "authored_strings": [
     "Preprocessing makes cracks bright lines, and HOG records their direction in every 16-pixel cell.",
-    "Source: 295 images, 275 specimens, 50 open-access articles",
+    "Source: 273 images, 253 specimens, 51 open-access articles",
     "Image",
     "Preprocessed",
     "HOG",

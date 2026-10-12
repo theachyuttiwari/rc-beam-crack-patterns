@@ -1,7 +1,7 @@
 {
   "path": "figures/fig_crack_types.png",
   "script": "src/figures_v2/fig_crack_types.py",
-  "git_sha": null,
+  "git_sha": "11f933a",
   "rendered": "2026-10-12",
   "caption": "Idealised crack patterns of a simply supported reinforced-concrete beam under four-point loading: flexural, shear and flexure-shear. P is a load, a the shear span, d the effective depth. A drawing, not data.",
   "inputs": [
@@ -16,7 +16,7 @@
   "font_requested": "DM Sans",
   "strings": [
     "Flexure cracks stay vertical, shear cracks slant toward the load, and flexure-shear cracks start\nvertical then bend.",
-    "Source: schematic of the three classes used for 295 images",
+    "Source: schematic of the three classes used for 273 images",
     "Flexural",
     "P",
     "support",
@@ -27,7 +27,7 @@
   ],
   "authored_strings": [
     "Flexure cracks stay vertical, shear cracks slant toward the load, and flexure-shear cracks start\nvertical then bend.",
-    "Source: schematic of the three classes used for 295 images",
+    "Source: schematic of the three classes used for 273 images",
     "Flexural",
     "P",
     "support",

@@ -1,7 +1,7 @@
 {
   "path": "figures/fig_pipeline.png",
   "script": "src/figures_v2/fig_pipeline.py",
-  "git_sha": null,
+  "git_sha": "11f933a",
   "rendered": "2026-10-12",
   "caption": "Processing chain: grey-scale, CLAHE contrast, 128 by 256 letterbox, blur and black-hat; HOG with 9 bins, 16 by 16 pixel cells and 2 by 2 blocks (3,780 values); five classifiers; folds grouped by specimen or by article; accuracy, macro precision, recall and F1, and confusion matrices.",
   "inputs": [
@@ -16,7 +16,7 @@
   "font_requested": "DM Sans",
   "strings": [
     "Each crack image is cleaned, reduced to edge directions, and scored by five classifiers.",
-    "Source: 295 images, 275 specimens, 50 open-access articles",
+    "Source: 273 images, 253 specimens, 51 open-access articles",
     "Image",
     "Preprocess",
     "HOG",
@@ -29,7 +29,7 @@
   ],
   "authored_strings": [
     "Each crack image is cleaned, reduced to edge directions, and scored by five classifiers.",
-    "Source: 295 images, 275 specimens, 50 open-access articles",
+    "Source: 273 images, 253 specimens, 51 open-access articles",
     "Image",
     "Preprocess",
     "HOG",

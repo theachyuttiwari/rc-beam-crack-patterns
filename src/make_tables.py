@@ -36,7 +36,7 @@ def dataset_table(m):
     has_mod = "modality" in m
     head = "Class & Images & Specimens & Articles" + (" & Photographs" if has_mod else "") + " \\\\"
     lines = ["\\begin{table}[t]", "\\centering",
-             "\\caption{Composition of the compiled dataset. Specimens are the unit of independence; the remaining images are traced crack maps.}" if has_mod else
+             "\\caption{Labelled images by class. Specimens are the unit of independence for images of one beam. Photographs are images that show only a photograph; the others are traced crack maps or a photograph with a traced map.}" if has_mod else
              "\\caption{Composition of the compiled dataset. Specimens are the unit of independence.}",
              "\\label{tab:dataset}", "\\begin{tabular}{l r r r" + (" r" if has_mod else "") + "}", "\\toprule", head, "\\midrule"]
     for r in rows + [tot]:
@@ -48,12 +48,16 @@ def dataset_table(m):
     return "\n".join(lines) + "\n", rows, tot
 
 
-def metrics_table(res):
+BASE_NAMES = {"majority": "Majority", "article_prior": "Article prior", "metadata_rf": "Metadata RF"}
+
+
+def metrics_table(res, base=None):
+    """base: results/analysis/baselines.csv. Its rows (no pixels of crack) go under each grouped scheme."""
     g = res.groupby(["scheme", "classifier"])
     mean = g[["accuracy", "precision_macro", "recall_macro", "f1_macro"]].mean()
     sd = g[["accuracy", "precision_macro", "recall_macro", "f1_macro"]].std().fillna(0)
     lines = ["\\begin{table*}[t]", "\\centering",
-             "\\caption{Classification performance under three validation schemes (mean $\\pm$ SD over five outer folds, in \\%). Image-level folds may split a specimen; specimen-level folds never do; article-level folds keep every image of a source article in one fold.}",
+             "\\caption{Classification performance under three validation schemes (mean $\\pm$ SD over the outer folds, in \\%). Image-level folds may split a specimen. Specimen-level folds never do. Article-level folds keep every image of a source in one fold. The baselines in italics use the same folds and see no crack: the majority class, the majority label of the test image's source in the training part, and a random forest on image metadata.}",
              "\\label{tab:metrics}", "\\begin{tabular}{l l r r r r}", "\\toprule",
              "Split & Classifier & Accuracy & Precision (macro) & Recall (macro) & F1 (macro) \\\\", "\\midrule"]
     for scheme, lab in [("image", "Image-level"), ("specimen", "Specimen-level"), ("article", "Article-level")]:
@@ -65,6 +69,14 @@ def metrics_table(res):
             cells = ["%s $\\pm$ %s" % (pct(mu[k]), pct(s[k])) for k in ["accuracy", "precision_macro", "recall_macro", "f1_macro"]]
             lines.append("%s & %s & %s \\\\" % (lab if first else "", NAMES[clf], " & ".join(cells)))
             first = False
+        if base is not None:
+            for bname, blab in BASE_NAMES.items():
+                r = base[(base.scheme == scheme) & (base.model == bname)]
+                if r.empty:
+                    continue
+                r = r.iloc[0]
+                cells = ["%s $\\pm$ %s" % (pct(r[k]), pct(r[k + "_sd"])) for k in ["accuracy", "precision_macro", "recall_macro", "f1_macro"]]
+                lines.append(" & \\textit{%s} & %s \\\\" % (blab, " & ".join(cells)))
         if scheme != "article":
             lines.append("\\midrule")
     lines += ["\\bottomrule", "\\end{tabular}", "\\end{table*}"]
@@ -85,10 +97,10 @@ def loso_table(loso, preds):
             continue
         pr, rc, f1, _ = precision_recall_fscore_support(x["true"], x["pred"], labels=C.CLASSES, average="macro", zero_division=0)
         rows[clf] = dict(acc=accuracy_score(x["true"], x["pred"]), prec=pr, rec=rc, f1=f1,
-                         n_sources=x.source_slug.nunique())
+                         n_sources=x.programme.nunique() if "programme" in x else x.source_slug.nunique())
     agg = pd.DataFrame(rows).T
     lines = ["\\begin{table}[t]", "\\centering",
-             "\\caption{Leave-one-source-out: each article is held out in turn and the model is trained on all the others. Out-of-source predictions are pooled over all articles (in \\%).}",
+             "\\caption{Leave-one-article-out: each source (one test programme) is held out in turn and the model is trained on all the others. The predictions for the held-out sources are pooled (in \\%).}",
              "\\label{tab:loso}", "\\begin{tabular}{l r r r r}", "\\toprule",
              "Classifier & Accuracy & Precision & Recall & F1 (macro) \\\\", "\\midrule"]
     for clf in ORDER:
@@ -104,7 +116,7 @@ def timing_table(t):
         return "", None
     t = t[t.scheme == "specimen"].groupby("classifier").mean(numeric_only=True)
     lines = ["\\begin{table}[t]", "\\centering",
-             "\\caption{Cost on one laptop CPU. Feature extraction is shared by all classifiers.}",
+             "\\caption{Cost on one laptop CPU under specimen-level folds. Train time is the wall time of the inner grid search with four parallel jobs, per outer fold. Feature extraction is shared by all classifiers.}",
              "\\label{tab:timing}", "\\begin{tabular}{l r r}", "\\toprule",
              "Classifier & Train (s) & Predict (ms/image) \\\\", "\\midrule"]
     for clf in ORDER:
@@ -112,6 +124,106 @@ def timing_table(t):
             lines.append("%s & %.2f & %.2f \\\\" % (NAMES[clf], t.loc[clf, "train_s"], t.loc[clf, "predict_ms_per_image"]))
     lines += ["\\bottomrule", "\\end{tabular}", "\\end{table}"]
     return "\n".join(lines) + "\n", t
+
+
+def analysis_outputs(m, an, art_best):
+    """Macros for the dataset audit, the baselines, the bootstrap, the overlay subsets and the
+    within-programme test; and the overlay-subset table."""
+    import json
+    mac = ""
+    lab = m[m.label.isin(C.CLASSES)]
+    mac += macro("nAllImages", len(m)) + macro("nAllArticles", m.source_slug.nunique())
+    mac += macro("nUnknown", int((m.label == "unknown").sum()))
+    mac += macro("nOtherMode", int((m.label_basis == "other_mode").sum()))
+    mac += macro("nProgrammes", lab.programme.nunique())
+    single = lab.groupby("programme").label.nunique()
+    mac += macro("nSingleClassProg", int((single == 1).sum())) + macro("nMultiClassProg", int((single > 1).sum()))
+    mac += macro("nModeText", int(lab.overlay.str.contains("mode_text").sum()))
+    mac += macro("nNoModeText", int((~lab.overlay.str.contains("mode_text")).sum()))
+    mac += macro("nOverlayFree", int((lab.overlay == "none").sum()))
+    mac += macro("nOverlayFreeSF", int(((lab.overlay == "none") & (lab.label == "shear_flexural")).sum()))
+    ex = os.path.join(os.path.dirname(C.__file__), "..", "data", "manifest_excluded.csv")
+    if os.path.exists(ex):
+        mac += macro("nExcluded", len(pd.read_csv(ex)))
+    ch_p = os.path.join(os.path.dirname(C.__file__), "..", "data", "label_changes_2026-10-12.csv")
+    if os.path.exists(ch_p):
+        ch = pd.read_csv(ch_p)
+        known = lambda s: s.isin(C.CLASSES)
+        mac += macro("nRelabelled", int((known(ch.old_label) & known(ch.new_label) & (ch.old_label != ch.new_label)).sum()))
+        mac += macro("nAddedLabels", int((~known(ch.old_label) & known(ch.new_label)).sum()))
+        mac += macro("nRemovedLabels", int((known(ch.old_label) & ~known(ch.new_label)).sum()))
+        mac += macro("nAuditRows", len(ch))
+    base = pd.read_csv(os.path.join(an, "baselines.csv")).set_index(["scheme", "model"])
+    for (sch, mod), r in base.iterrows():
+        k = {"majority": "Maj", "article_prior": "Prior", "metadata_rf": "Meta", "size_rf": "Size"}[mod]
+        sk = {"specimen": "Spec", "article": "Art"}[sch]
+        mac += macro("base%s%sAcc" % (k, sk), pct(r.accuracy)) + macro("base%s%sFone" % (k, sk), pct(r.f1_macro))
+    bt = pd.read_csv(os.path.join(an, "bootstrap.csv"))
+    for _, r in bt.iterrows():
+        k = "bt%s%s%s" % ({"specimen": "Spec", "article": "Art"}[r.scheme], NAMES[r.classifier].replace("-", ""),
+                          {"majority": "Maj", "article_prior": "Prior"}[r.against])
+        for met, mk in (("accuracy", "Acc"), ("f1_macro", "Fone")):
+            mac += macro(k + mk, pct(r[met + "_diff"])) + macro(k + mk + "Lo", pct(r[met + "_lo"])) + macro(k + mk + "Hi", pct(r[met + "_hi"]))
+    # how many classifiers have an article-level F1 interval vs majority that includes zero
+    art = bt[(bt.scheme == "article") & (bt.against == "majority")]
+    mac += macro("nArtCiZero", int(((art.f1_macro_lo <= 0) & (art.f1_macro_hi >= 0)).sum()))
+    mac += macro("nArtCiAbove", int((art.f1_macro_lo > 0).sum()))
+    mac += macro("nArtAccCiZero", int(((art.accuracy_lo <= 0) & (art.accuracy_hi >= 0)).sum()))
+    sp = bt[(bt.scheme == "specimen") & (bt.against == "article_prior")]
+    mac += macro("nSpecBelowPrior", int(((sp.accuracy_hi < 0) & (sp.f1_macro_hi < 0)).sum()))
+    sub = pd.read_csv(os.path.join(an, "overlay_subsets.csv"))
+    for _, r in sub.iterrows():
+        k = "sub%s%s%s" % ({"specimen": "Spec", "article": "Art"}[r.scheme], NAMES[r.classifier].replace("-", ""),
+                           {"all": "All", "no_mode_text": "NoText", "overlay_none": "Clean"}[r.subset])
+        mac += macro(k + "Acc", pct(r.accuracy)) + macro(k + "Fone", pct(r.f1_macro))
+    for name, key in (("all", "All"), ("no_mode_text", "NoText"), ("overlay_none", "Clean")):
+        r = sub[sub.subset == name].iloc[0]
+        mac += macro("sub%sN" % key, int(r.n)) + macro("sub%sMaj" % key, pct(r.majority_accuracy))
+    lines = ["\\begin{table}[t]", "\\centering",
+             "\\caption{Out-of-fold specimen-level and article-level results on three subsets of the labelled images (in \\%): all images, images without failure-mode text, and images with no overlay. Maj.\\ is the share of the largest class in the subset.}",
+             "\\label{tab:overlay}", "\\begin{tabular}{l l r r r r}", "\\toprule",
+             " & & \\multicolumn{2}{c}{Specimen} & \\multicolumn{2}{c}{Article} \\\\",
+             "\\cmidrule(lr){3-4}\\cmidrule(lr){5-6}",
+             "Subset ($n$, Maj.) & Classifier & Acc. & F1 & Acc. & F1 \\\\", "\\midrule"]
+    for name, lab_ in (("all", "All"), ("no_mode_text", "No mode text"), ("overlay_none", "No overlay")):
+        s0 = sub[sub.subset == name]
+        r0 = s0.iloc[0]
+        first = True
+        for clf in ORDER:
+            a_ = s0[(s0.classifier == clf) & (s0.scheme == "specimen")]
+            b_ = s0[(s0.classifier == clf) & (s0.scheme == "article")]
+            if a_.empty or b_.empty:
+                continue
+            a_, b_ = a_.iloc[0], b_.iloc[0]
+            head = "%s (%d, %s)" % (lab_, r0.n, pct(r0.majority_accuracy)) if first else ""
+            lines.append("%s & %s & %s & %s & %s & %s \\\\" % (head, NAMES[clf], pct(a_.accuracy), pct(a_.f1_macro),
+                                                             pct(b_.accuracy), pct(b_.f1_macro)))
+            first = False
+        if name != "overlay_none":
+            lines.append("\\midrule")
+    lines += ["\\bottomrule", "\\end{tabular}", "\\end{table}"]
+    g = lab.groupby(["programme", "specimen_id"]).size()
+    mac += macro("nMultiImageSpec", int((g > 1).sum()))
+    pr_p = os.path.join(os.path.dirname(an), "main", "predictions.csv")
+    if os.path.exists(pr_p):
+        pr = pd.read_csv(pr_p)
+        for sch, k in (("article", "Art"), ("loso", "Loso")):
+            d = pr[(pr.scheme == sch) & (pr.true == "shear_flexural")]
+            mac += macro("sfHits%sMax" % k, int((d.pred == "shear_flexural").groupby(d.classifier).sum().max()))
+            d = pr[(pr.scheme == sch) & (pr.true == "shear")]
+            mac += macro("shearAsFlex%sMax" % k, int((d.pred == "flexural").groupby(d.classifier).sum().max()))
+    w = pd.read_csv(os.path.join(an, "within_programme.csv")).set_index("model")
+    wi = json.loads(open(os.path.join(an, "within_programme.json")).read())
+    for mod, k in (("SVM", "Svm"), ("majority", "Maj"), ("article_prior", "Prior")):
+        r = w.loc[mod]
+        mac += macro("within%sAcc" % k, pct(r.accuracy)) + macro("within%sAccSd" % k, pct(r.accuracy_sd))
+        mac += macro("within%sFone" % k, pct(r.f1_macro)) + macro("within%sFoneSd" % k, pct(r.f1_macro_sd))
+    mac += macro("withinImages", wi["images"]) + macro("withinSpecimens", wi["specimens"])
+    mac += macro("withinProgrammes", wi["programmes"]) + macro("withinSeeds", wi["seeds"])
+    mac += macro("withinFolds", wi["folds"]) + macro("withinSvmWins", wi["svm_beats_prior_seeds"])
+    for c in C.CLASSES:
+        mac += macro("within" + CLS[c].replace("-", ""), wi["classes"][c])
+    return mac, "\n".join(lines) + "\n"
 
 
 def main():
@@ -131,7 +243,10 @@ def main():
 
     dt, rows, tot = dataset_table(m)
     open(os.path.join(a.out, "dataset_table.tex"), "w").write(dt)
-    mt, mean, sd = metrics_table(res)
+    an = os.path.join(os.path.dirname(a.results.rstrip("/")), "analysis")
+    base_p = os.path.join(an, "baselines.csv")
+    base = pd.read_csv(base_p) if os.path.exists(base_p) else None
+    mt, mean, sd = metrics_table(res, base)
     open(os.path.join(a.out, "metrics_table.tex"), "w").write(mt)
     preds_p = os.path.join(a.results, "predictions.csv")
     preds = pd.read_csv(preds_p) if os.path.exists(preds_p) else None
@@ -208,6 +323,11 @@ def main():
     mac += macro("majorityAcc", pct(mm.label.value_counts().max() / len(mm)))
     open(os.path.join(a.out, "results_macros.tex"), "w").write(mac)
     print(mac)
+    if base is not None:
+        am, ot = analysis_outputs(m, an, NAMES[art.f1_macro.idxmax()] if art is not None else None)
+        open(os.path.join(a.out, "analysis_macros.tex"), "w").write(am)
+        open(os.path.join(a.out, "overlay_table.tex"), "w").write(ot)
+        print(am)
 
 
 if __name__ == "__main__":

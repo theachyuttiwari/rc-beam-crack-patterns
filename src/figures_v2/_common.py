@@ -5,7 +5,6 @@ and ends with finish(), which saves PNG (gated, with sidecar) then PDF.
 """
 import json
 import os
-import re
 import sys
 from pathlib import Path
 
@@ -23,6 +22,7 @@ from geoliquefy_figstyle import draw as _draw   # noqa: E402
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "figures"
 sys.path.insert(0, str(ROOT / "src"))
+from picks import image_credits, short_credit  # noqa: E402,F401
 os.chdir(ROOT)           # so sidecar inputs are recorded relative to the paper
 
 # White page for print; the portal's face (DM Sans, vendored) on the
@@ -98,28 +98,6 @@ def word_count(fig):
         if art.get_visible() and id(art) not in skip:
             n += len(art.get_text().split())
     return n
-
-
-def short_credit(citation):
-    """'Liu X, Thermou GE (2024) Title. Journal. doi:10.x/y' -> 'Liu and Thermou (2024), doi:10.x/y'."""
-    authors, year = re.match(r"^(.+?) \((\d{4})\) ", citation).groups()
-    etal = authors.endswith(" et al.")
-    names = [re.sub(r"\s+[A-Z]{1,3}$", "", a.strip())
-             for a in authors.removesuffix(" et al.").split(",")]
-    if len(names) == 1 and not etal:
-        who = names[0]
-    elif len(names) == 2 and not etal:
-        who = f"{names[0]} and {names[1]}"
-    else:
-        who = f"{names[0]} et al."
-    doi = re.search(r"doi:(\S+)", citation).group(1).rstrip(".")
-    return f"{who} ({year}), doi:{doi}"
-
-
-def image_credits(rows):
-    """Numbered credit lines (CC BY attribution) for the dataset images in a figure."""
-    return [f"({i}) {short_credit(r.citation)}, specimen {r.specimen_id}, {r.licence}"
-            for i, r in enumerate(rows, 1)]
 
 
 def badge(ax, n):

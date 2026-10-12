@@ -1,0 +1,13 @@
+{
+ "images": 121,
+ "specimens": 116,
+ "programmes": 16,
+ "folds": 5,
+ "seeds": 10,
+ "classes": {
+  "flexural": 50,
+  "shear": 47,
+  "shear_flexural": 24
+ },
+ "svm_beats_prior_seeds": 0
+}

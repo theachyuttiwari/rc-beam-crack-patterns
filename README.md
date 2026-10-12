@@ -1,24 +1,27 @@
 # rc-beam-crack-patterns
 
-A dataset of crack-pattern images of reinforced-concrete (RC) beams, and the code for a baseline that classifies them as flexural, shear or shear-flexural. This is the release repository for the paper "Classification of Flexural, Shear and Shear-Flexural Crack Patterns in Reinforced Concrete Beams with HOG Features and Classical Machine Learning under Specimen-Level and Source-Level Validation" (Tiwari, 2026).
+A dataset of crack-pattern images of reinforced-concrete (RC) beams, and the code that tests whether classifiers learn the failure mode or the source of the image. This is the release repository for the paper "Do Crack-Pattern Classifiers Learn the Failure Mode? Specimen-Level and Source-Level Validation of HOG Features and Classical Machine Learning for Reinforced Concrete Beams" (Tiwari, 2026, manuscript in preparation).
 
 ## What is in it
 
-- 375 images cropped from 67 open-access journal articles. 295 carry a failure-mode label that the authors of the article state in their text. 80 are unlabelled. Every label has a verbatim evidence quote.
+- 371 images cropped from 67 open-access journal articles. 273 carry a flexural, shear or shear-flexural label that the authors of the article state in their text, each with a verbatim evidence quote. 24 have an author-stated mode outside these classes (`other_mode`). 74 are unlabelled.
+- For each image: a specimen and a test-programme identifier, and a record of the text and panels it carries besides the beam (`overlay`).
 - A pipeline: grey-scale, CLAHE, letterbox resize, black-hat crack enhancement, HOG features (3780 values), and five classifiers (SVM, random forest, kNN, decision tree, XGBoost).
 - Three validation schemes: by specimen, by article, and by image (the leaky one, kept to show the leak). Leave-one-article-out is run too.
-- The result files behind every table in the paper, the generated LaTeX tables, and the figure scripts with their provenance sidecars. The paper itself is not in this repository.
+- Baselines that see no crack (majority class, source prior, metadata random forest), 95% intervals that resample sources, overlay subsets and a test inside the sources that hold more than one class (`src/analysis.py`).
+- The result files behind every table in the paper, the generated LaTeX tables and number macros, and the figure scripts. The paper itself is not in this repository.
 
 ## Headline result
 
-The classes are flexural 149, shear 115 and shear-flexural 31 images, from 275 specimens in 50 articles. A model that always answers "flexural" scores 50.5%.
+The labelled set is flexural 137, shear 112 and shear-flexural 24 images, from 253 specimens in 50 test programmes (51 articles). A model that always answers "flexural" scores 50.2%.
 
-- Specimen-level folds: SVM, kNN and XGBoost reach about 70% accuracy (SVM 73.6%, kNN 69.4%, XGBoost 68.1%).
-- Article-level folds, where no article is in both train and test: accuracy falls to 44 to 49%. All five classifiers fall below the majority rate.
-- Leave-one-article-out agrees with the article-level folds.
-- A descriptor that keeps only gradient direction (18-bin orientation histogram) scores lower at specimen level (44 to 61%) but loses less at article level (42 to 55%). Direction transfers better between articles than layout does.
+- Specimen-level folds: the HOG classifiers reach 52.0 to 70.7% accuracy (best macro F1 60.0%, random forest).
+- A source prior that gives each image the majority label of its test programme, and sees no pixel, reaches 82.0% under the same folds. A random forest on image size, grey level and colour reaches 73.2%. Every HOG classifier is below the source prior.
+- Article-level folds, where no test programme is in both train and test: accuracy falls to 44.5 to 56.2%. For every classifier the 95% interval of the difference to the majority class includes zero.
+- Inside the 16 test programmes that hold more than one class, the SVM stays below the source prior.
+- Images without printed failure-mode words give the same accuracy as all images.
 
-The 70% result comes from beams of the same test programme appearing on both sides of the split. It does not show that the model reads crack patterns. Split by article when you use this dataset.
+The classifiers learn mostly the source, not the failure mode. Split by test programme, and report the source prior and a metadata baseline, when you use this dataset.
 
 ## Where is what
 
@@ -29,7 +32,7 @@ The 70% result comes from beams of the same test programme appearing on both sid
 | `data/panels/<PMCID>/` | The cropped images. |
 | `data/README.md` | Column schema, labelling protocol, counts, caveats. |
 | `data/SOURCES.md` | One row per source article: citation, DOI, licence, image counts. |
-| `src/` | Code: `config.py`, `preprocess.py`, `features.py`, `train_eval.py`, `make_tables.py`, `make_ablation_table.py`, `data_check.py`, `verify_quotes.py`; draft figure scripts `make_figures.py`, `make_figures_extra.py`. |
+| `src/` | Code: `config.py`, `preprocess.py`, `features.py`, `train_eval.py`, `make_tables.py`, `make_ablation_table.py`, `data_check.py`, `verify_quotes.py`; print figure scripts `make_figures.py`, `make_figures_extra.py`; `picks.py` (example images and their credits, shared by both figure sets). |
 | `src/figures_v2/` | The eight paper figures, one script each. Each script reads result files, re-checks the numbers it draws, and writes a `.meta.json` sidecar. |
 | `tests/` | pytest suite. |
 | `.github/workflows/ci.yml` | Runs the data check and the tests on every push. |
@@ -39,7 +42,7 @@ The 70% result comes from beams of the same test programme appearing on both sid
 | `results/tables/` | LaTeX tables and number macros, generated by `make tables`. |
 | `figures/` | The eight paper figures as PNG and PDF, each with a `.png.meta.json` provenance sidecar. |
 | `refs/` | `references.bib` and `literature.md`. |
-| `Makefile` | `setup`, `data-check`, `test`, `train`, `tables`, `figures`, `figures-draft`, `reproduce`, `clean`. |
+| `Makefile` | `setup`, `data-check`, `test`, `train`, `tables`, `figures`, `figures-print`, `reproduce`, `clean`. |
 
 ## Quickstart
 
@@ -54,7 +57,7 @@ make reproduce
 
 `make reproduce` runs the data check, the three training runs and the tables. Each run takes about 15 minutes on a laptop and overwrites `results/`. Results were produced with Python 3.12, seed 42. See `results/main/environment.txt`.
 
-`make figures` rebuilds the paper figures. It needs the `geoliquefy_figstyle` package (the house figure style, not on PyPI); without it, `make figures-draft` draws plain matplotlib versions of the same data into `figures/draft/`.
+`make figures-print` draws the figures that the paper uses into `figures/print/` (IEEE column and page widths, 8-pt text, TrueType fonts; plain matplotlib). `make figures` draws the web versions into `figures/`; it needs the `geoliquefy_figstyle` package (the house figure style, not on PyPI).
 
 ## Licences
 

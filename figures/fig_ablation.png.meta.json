@@ -1,7 +1,7 @@
 {
   "path": "figures/fig_ablation.png",
   "script": "src/figures_v2/fig_ablation.py",
-  "git_sha": null,
+  "git_sha": "11f933a",
   "rendered": "2026-10-12",
   "caption": "Macro F1 of five classifiers on three descriptors: HOG, HOG without the black-hat step, and an 18-bin gradient orientation histogram, under specimen-level (left) and article-level (right) folds; mean and SD over five folds.",
   "inputs": [
@@ -19,8 +19,8 @@
   "font_requested": "DM Sans",
   "strings": [
     "mean \u00b1 SD over five folds",
-    "The plain orientation histogram trails HOG by specimen but beats it by article, for every\nclassifier.",
-    "Source: 295 images, 275 specimens, 50 open-access articles",
+    "Dropping position lowers macro F1 by specimen and raises it by article, for four of five\nclassifiers.",
+    "Source: 273 images, 253 specimens, 51 open-access articles",
     "HOG",
     "no black-hat",
     "orientation histogram",
@@ -38,8 +38,8 @@
   ],
   "authored_strings": [
     "mean \u00b1 SD over five folds",
-    "The plain orientation histogram trails HOG by specimen but beats it by article, for every\nclassifier.",
-    "Source: 295 images, 275 specimens, 50 open-access articles",
+    "Dropping position lowers macro F1 by specimen and raises it by article, for four of five\nclassifiers.",
+    "Source: 273 images, 253 specimens, 51 open-access articles",
     "HOG",
     "no black-hat",
     "orientation histogram",

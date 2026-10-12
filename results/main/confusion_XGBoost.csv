@@ -1,4 +1,4 @@
 ,pred_flexural,pred_shear,pred_shear_flexural
-true_flexural,123,25,1
-true_shear,40,71,4
-true_shear_flexural,16,8,7
+true_flexural,109,27,1
+true_shear,35,72,5
+true_shear_flexural,12,5,7

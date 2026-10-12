@@ -23,7 +23,7 @@ import cv2
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, f1_score
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.model_selection import StratifiedGroupKFold
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -37,9 +37,13 @@ N_BOOT = 2000
 WITHIN_SEEDS = range(10)
 
 
-def metrics(y, p):
-    return dict(accuracy=accuracy_score(y, p),
-                f1_macro=f1_score(y, p, labels=range(len(CLASSES)), average="macro", zero_division=0))
+def metrics(y, p, full=False):
+    lab = range(len(CLASSES))
+    out = dict(accuracy=accuracy_score(y, p), f1_macro=f1_score(y, p, labels=lab, average="macro", zero_division=0))
+    if full:
+        out.update(precision_macro=precision_score(y, p, labels=lab, average="macro", zero_division=0),
+                   recall_macro=recall_score(y, p, labels=lab, average="macro", zero_division=0))
+    return out
 
 
 def outer_splits(m, y):
@@ -91,12 +95,12 @@ def baselines(m, y, splits, meta):
                     rf = RandomForestClassifier(300, class_weight="balanced", random_state=SEED, n_jobs=4)
                     p = rf.fit(meta.iloc[tr][cols], y[tr]).predict(meta.iloc[te][cols])
                 p_all[te] = p
-                rows.append(dict(scheme=scheme, model=name, **metrics(y[te], p)))
+                rows.append(dict(scheme=scheme, model=name, **metrics(y[te], p, full=True)))
             preds.append(pd.DataFrame(dict(scheme=scheme, model=name, image_path=m["image_path"],
                                            programme=prog, true=y, pred=p_all)))
     folds = (pd.DataFrame(rows).groupby(["scheme", "model"], sort=False)
-             .agg(accuracy=("accuracy", "mean"), accuracy_sd=("accuracy", "std"),
-                  f1_macro=("f1_macro", "mean"), f1_macro_sd=("f1_macro", "std")).reset_index())
+             .agg(**{f"{k}{s}": (k, f) for k in ("accuracy", "precision_macro", "recall_macro", "f1_macro")
+                     for s, f in (("", "mean"), ("_sd", "std"))}).reset_index())
     return folds, pd.concat(preds, ignore_index=True)
 
 

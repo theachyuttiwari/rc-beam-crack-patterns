@@ -1,9 +1,11 @@
-"""Draft figures (vector PDF + 300-dpi PNG) in plain matplotlib. The paper figures are src/figures_v2/.
+"""Print figures for the paper (vector PDF with TrueType fonts + 300-dpi PNG), plain matplotlib, at IEEE
+column (3.5 in) and page (7.2 in) widths with 8-pt text. src/figures_v2/ draws the web versions.
 
-Usage: python make_figures.py --manifest data/manifest.csv --results results/main --out figures/draft
+Usage: python make_figures.py --manifest data/manifest.csv --results results/main --out figures/print
 Figures that need results or images are skipped (or drawn as placeholders) when missing.
 """
 import argparse
+import re
 from pathlib import Path
 
 import matplotlib
@@ -94,55 +96,74 @@ def fig_pipeline(out):
     save(fig, out, "fig_pipeline")
 
 
+def _picks(m):
+    """The same images as the paper figures in src/figures_v2 (one article per image, no printed
+    failure-mode words), with their CC BY credit lines."""
+    from picks import fit_cell, image_credits, load_rgb, pick_all
+    return pick_all(m), fit_cell, load_rgb, image_credits
+
+
+def _badge(ax, n):
+    ax.text(0.02, 0.96, str(n), transform=ax.transAxes, ha="left", va="top", fontsize=7,
+            fontweight="bold", color=INK, bbox=dict(boxstyle="round,pad=0.15", fc="white", ec=AXIS, lw=0.5))
+
+
+def _frame(ax):
+    ax.set_xticks([]); ax.set_yticks([])
+    for s in ax.spines.values():
+        s.set_visible(True); s.set_color(AXIS); s.set_linewidth(0.5)
+
+
+def _write_credits(out, name, credits):
+    (out / f"{name}_credits.md").write_text(
+        f"# Image credits for {name}\n\nEach number is the badge on an image cell. Every image is cropped "
+        "and rescaled from the open-access article cited; full citations are in data/SOURCES.md.\n\n"
+        + "".join(f"- {c}\n" for c in credits))
+
+
 def fig_samples(out, m, n=4):
-    fig, axes = plt.subplots(3, n, figsize=(W2, W2 * 3 / n * 0.52))
+    picks, fit_cell, load_rgb, image_credits = _picks(m)
+    fig, axes = plt.subplots(3, n, figsize=(W2, 2.9))
+    shown = []
     for r, c in enumerate(C.CLASSES):
-        have = None
-        if m is not None:
-            d = m[m.label == c].assign(_g=m.programme + "::" + m.specimen_id.astype(str)).drop_duplicates("_g")
-            have = d.head(n)
-        for j in range(n):
+        for j, row in enumerate(picks[c][:n]):
             ax = axes[r, j]
-            ax.set_xticks([]); ax.set_yticks([])
-            for s in ax.spines.values():
-                s.set_visible(False)
-            if have is not None and j < len(have):
-                ax.imshow(P.load_gray(have.iloc[j]["abs_path"]), cmap="gray", aspect="equal")
-            else:
-                ax.add_patch(Rectangle((0, 0), 1, 1, fc="#f0efec", ec=AXIS, lw=0.6, transform=ax.transAxes))
-                ax.text(0.5, 0.5, "no data yet", ha="center", va="center", color=MUTED, transform=ax.transAxes)
+            ax.imshow(fit_cell(load_rgb(row.image_path)), aspect="auto")
+            _frame(ax)
+            shown.append(row)
+            _badge(ax, len(shown))
             if j == 0:
-                ax.text(-0.04, 0.5, CLASS_LABEL[c], rotation=90, ha="right", va="center",
-                        transform=ax.transAxes, color=CLASS_COL[c], fontweight="bold")
-    fig.subplots_adjust(wspace=0.04, hspace=0.06)
-    if is_synthetic(m):
-        synth_banner(fig)
+                ax.set_ylabel("%s\n(%d images)" % (CLASS_LABEL[c], int((m.label == c).sum())),
+                              color=INK, fontweight="bold", fontsize=8)
+    fig.subplots_adjust(wspace=0.04, hspace=0.08)
+    _write_credits(out, "fig_samples", image_credits(shown))
+    # the same credits, short form, for the paper caption
+    short = ["(%d)~%s" % (i, re.sub(r", doi:.*", "", c.split(") ", 1)[1]).replace(" (", " ").rstrip(")")
+                              .replace("et al. ", "et al.\\ "))
+             for i, c in enumerate(image_credits(shown), 1)]
+    (out / "fig_samples_credits.tex").write_text("\\newcommand{\\sampleCredits}{%s}\n" % "; ".join(short))
     save(fig, out, "fig_samples")
 
 
 def fig_hog(out, m):
-    fig, axes = plt.subplots(3, 3, figsize=(W2, 4.2))
-    for a in axes.ravel():
-        a.set_xticks([]); a.set_yticks([])
-        for s in a.spines.values():
-            s.set_visible(False)
-    for j, t in enumerate(["Original", "Preprocessed", "HOG"]):
-        axes[0, j].set_title(t, color=INK2)
+    picks, fit_cell, load_rgb, image_credits = _picks(m)
+    fig, axes = plt.subplots(3, 3, figsize=(W1, 2.6))
+    for j, t in enumerate(["Image", "Preprocessed", "HOG"]):
+        axes[0, j].set_title(t, color=INK2, fontsize=8)
+    shown = []
     for r, c in enumerate(C.CLASSES):
-        axes[r, 0].set_ylabel(CLASS_LABEL[c], color=CLASS_COL[c], fontweight="bold")
-        if m is None or not (m.label == c).any():
-            for j in range(3):
-                axes[r, j].text(0.5, 0.5, "no data yet", ha="center", va="center", color=MUTED,
-                                transform=axes[r, j].transAxes)
-            continue
-        g = P.load_gray(m[m.label == c].iloc[0]["abs_path"])
-        pp = P.preprocess_array(g)
-        axes[r, 0].imshow(g, cmap="gray")
-        axes[r, 1].imshow(pp, cmap="gray")
-        axes[r, 2].imshow(F.hog_visualisation(pp), cmap="gray")
-    fig.subplots_adjust(wspace=0.04, hspace=0.06)
-    if is_synthetic(m):
-        synth_banner(fig)
+        row = picks[c][0]
+        shown.append(row)
+        pre = P.preprocess(row.image_path)
+        for j, (img, kw) in enumerate(((fit_cell(load_rgb(row.image_path)), {}),
+                                       (pre, dict(cmap="gray", vmin=0, vmax=255)),
+                                       (F.hog_visualisation(pre), dict(cmap="gray", vmin=0, vmax=1)))):
+            axes[r, j].imshow(img, aspect="auto", **kw)
+            _frame(axes[r, j])
+        _badge(axes[r, 0], len(shown))
+        axes[r, 0].set_ylabel(CLASS_LABEL[c], color=INK, fontweight="bold", fontsize=7)
+    fig.subplots_adjust(wspace=0.04, hspace=0.08)
+    _write_credits(out, "fig_hog", image_credits(shown))
     save(fig, out, "fig_hog")
 
 

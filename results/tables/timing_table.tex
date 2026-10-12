@@ -1,16 +1,16 @@
 \begin{table}[t]
 \centering
-\caption{Cost on one laptop CPU. Feature extraction is shared by all classifiers.}
+\caption{Cost on one laptop CPU under specimen-level folds. Train time is the wall time of the inner grid search with four parallel jobs, per outer fold. Feature extraction is shared by all classifiers.}
 \label{tab:timing}
 \begin{tabular}{l r r}
 \toprule
 Classifier & Train (s) & Predict (ms/image) \\
 \midrule
-SVM & 0.79 & 0.22 \\
-RF & 1.23 & 0.09 \\
-kNN & 0.21 & 0.78 \\
-DT & 0.63 & 0.01 \\
-XGBoost & 14.31 & 0.03 \\
+SVM & 0.47 & 0.12 \\
+RF & 1.15 & 0.13 \\
+kNN & 0.19 & 0.50 \\
+DT & 0.59 & 0.01 \\
+XGBoost & 13.07 & 0.03 \\
 \bottomrule
 \end{tabular}
 \end{table}

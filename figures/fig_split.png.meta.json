@@ -1,7 +1,7 @@
 {
   "path": "figures/fig_split.png",
   "script": "src/figures_v2/fig_split.py",
-  "git_sha": null,
+  "git_sha": "11f933a",
   "rendered": "2026-10-12",
   "caption": "Illustration of three ways to split images into training and test folds. Each row is a specimen, grouped under its article; each square is an image; hatched squares are the test fold. A drawing of the scheme, not data.",
   "inputs": [
@@ -16,7 +16,7 @@
   "font_requested": "DM Sans",
   "strings": [
     "Only splitting by article keeps every image of a paper out of training.",
-    "Source: 295 images, 275 specimens, 50 open-access articles",
+    "Source: 273 images, 253 specimens, 51 open-access articles",
     "by image",
     "one article",
     "by specimen",
@@ -26,7 +26,7 @@
   ],
   "authored_strings": [
     "Only splitting by article keeps every image of a paper out of training.",
-    "Source: 295 images, 275 specimens, 50 open-access articles",
+    "Source: 273 images, 253 specimens, 51 open-access articles",
     "by image",
     "one article",
     "by specimen",
