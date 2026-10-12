@@ -97,7 +97,7 @@ def load_manifest(path):
     m = pd.read_csv(path)
     m = m[m["label"].isin(C.CLASSES)].reset_index(drop=True)
     m["abs_path"] = [p if Path(p).is_absolute() else str(C.REPO_ROOT / p) for p in m["image_path"]]
-    m["group"] = m["source_slug"].astype(str) + "::" + m["specimen_id"].astype(str)
+    m["group"] = m["programme"].astype(str) + "::" + m["specimen_id"].astype(str)
     return m
 
 
@@ -163,6 +163,7 @@ def pred_frame(m, te, p, scheme, name, fold, source=None):
         scheme=scheme, classifier=name, fold=fold,
         image_path=m["image_path"].iloc[te].values,
         source_slug=m["source_slug"].iloc[te].values,
+        programme=m["programme"].iloc[te].values,
         specimen_id=m["specimen_id"].iloc[te].values,
         true=m["label"].iloc[te].values,
         pred=[C.CLASSES[i] for i in p]))
@@ -189,7 +190,7 @@ def main():
     cls_idx = {c: i for i, c in enumerate(C.CLASSES)}
     y = m["label"].map(cls_idx).to_numpy()
     groups = m["group"].to_numpy()
-    print(f"{len(m)} images, {m['group'].nunique()} specimens, {m['source_slug'].nunique()} sources")
+    print(f"{len(m)} images, {m['group'].nunique()} specimens, {m['programme'].nunique()} test programmes")
     print(m["label"].value_counts().to_string())
 
     X, Xf, feat_s = build_features(m, a.features, blackhat, clahe)
@@ -205,11 +206,11 @@ def main():
         f.write(f"image size {C.IMG_H}x{C.IMG_W} blackhat {blackhat} clahe {clahe} "
                 f"hflip_augment {C.AUGMENT_HFLIP}\n")
         f.write(f"n_images {len(m)} n_specimens {m['group'].nunique()} "
-                f"n_sources {m['source_slug'].nunique()}\n")
+                f"n_programmes {m['programme'].nunique()}\n")
 
     k = min(C.N_FOLDS, int(m.groupby("label")["group"].nunique().min()))
-    sources_arr = m["source_slug"].to_numpy()
-    k_art = min(C.N_FOLDS, int(m.groupby("label")["source_slug"].nunique().min()))
+    sources_arr = m["programme"].to_numpy()   # one test programme may span two articles
+    k_art = min(C.N_FOLDS, int(m.groupby("label")["programme"].nunique().min()))
     # scheme -> (splitter, grouping array used for the outer split and the inner grid search)
     splitters = {
         "specimen": (StratifiedGroupKFold(k, shuffle=True, random_state=SEED), groups),
@@ -230,11 +231,11 @@ def main():
                 preds.append(pred_frame(m, te, p, scheme, name, fi))
 
     # leave-one-source-out
-    sources = sorted(m["source_slug"].unique())
+    sources = sorted(m["programme"].unique())
     loso_rows = []
     if len(sources) >= C.MIN_SOURCES_FOR_LOSO:
         from joblib import Parallel, delayed
-        src_arr = m["source_slug"].to_numpy()
+        src_arr = m["programme"].to_numpy()
 
         def _one(name, s):
             te = np.where(src_arr == s)[0]

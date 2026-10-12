@@ -1,24 +1,26 @@
 {
- "images": 375,
+ "images": 371,
  "articles": 67,
+ "programmes": 66,
  "labels": {
   "flexural": 137,
-  "shear": 116,
+  "shear": 112,
   "shear_flexural": 24,
   "unknown": 98
  },
  "label_basis": {
   "needs_manual": 74,
   "other_mode": 24,
-  "paper_text": 277
+  "paper_text": 273
  },
  "labelled": {
-  "images": 277,
-  "specimens": 257,
+  "images": 273,
+  "specimens": 254,
   "articles": 51,
+  "programmes": 50,
   "specimens_per_class": {
-   "flexural": 126,
-   "shear": 107,
+   "flexural": 125,
+   "shear": 105,
    "shear_flexural": 24
   },
   "articles_per_class": {
@@ -26,22 +28,22 @@
    "shear": 25,
    "shear_flexural": 9
   },
-  "single_class_articles": 35,
-  "majority_rate": 0.4946,
+  "single_class_articles": 34,
+  "majority_rate": 0.5018,
   "evidence_scope": {
-   "group_level": 142,
-   "per_specimen": 135
+   "group_level": 140,
+   "per_specimen": 133
   },
   "modality_by_class": {
    "flexural": {
     "map": 32,
-    "photo": 105,
-    "photo+map": 0
+    "photo": 99,
+    "photo+map": 6
    },
    "shear": {
-    "map": 24,
-    "photo": 92,
-    "photo+map": 0
+    "map": 22,
+    "photo": 84,
+    "photo+map": 6
    },
    "shear_flexural": {
     "map": 7,
@@ -50,7 +52,15 @@
    }
   }
  },
+ "overlay_free_labelled": 70,
+ "overlay": {
+  "caption": 45,
+  "composite": 60,
+  "mode_text": 75,
+  "none": 102,
+  "other_text": 224
+ },
  "licences": {
-  "CC BY 4.0": 375
+  "CC BY 4.0": 371
  }
 }

@@ -99,7 +99,7 @@ def fig_samples(out, m, n=4):
     for r, c in enumerate(C.CLASSES):
         have = None
         if m is not None:
-            d = m[m.label == c].assign(_g=m.source_slug + "::" + m.specimen_id.astype(str)).drop_duplicates("_g")
+            d = m[m.label == c].assign(_g=m.programme + "::" + m.specimen_id.astype(str)).drop_duplicates("_g")
             have = d.head(n)
         for j in range(n):
             ax = axes[r, j]

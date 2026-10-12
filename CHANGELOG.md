@@ -5,6 +5,7 @@
 - Label pass against the article texts: 4 rows moved between classes, 6 rows newly labelled, 24 moved to `unknown`. New `label_basis` value `other_mode` for modes outside the three classes. 277 labelled images (257 specimens, 51 articles), 98 unknown.
 - `evidence_scope` is `per_specimen` only when the quote names the specimen (116 rows changed); `make data-check` enforces it.
 - `make verify-quotes` checks every evidence quote against the article full text.
+- New columns `programme` (one test programme reported in two articles is one group) and `overlay` (text and panels on each image, checked by eye). 62 caption bands cropped, 5 rotated beams fixed, 12 images set to `photo+map`, 4 duplicates excluded. 273 labelled images (254 specimens, 50 programmes); 70 have no overlay.
 - Removed 314 panel images that no manifest listed.
 - Numbered image credits in `fig_samples` and `fig_hog`.
 - Leave-one-article-out inner CV is grouped by article.

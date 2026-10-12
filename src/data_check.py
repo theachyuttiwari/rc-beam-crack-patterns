@@ -16,9 +16,9 @@ from PIL import Image
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-REQUIRED = ["image_path", "source_slug", "specimen_id", "label", "label_basis", "licence",
+REQUIRED = ["image_path", "source_slug", "programme", "specimen_id", "label", "label_basis", "licence",
             "citation", "notes", "beam_type", "evidence_quote", "evidence_location",
-            "evidence_scope", "image_ok", "modality"]
+            "evidence_scope", "image_ok", "modality", "overlay"]
 EXCLUDED_REQUIRED = ["image_path", "source_slug", "specimen_id", "reason"]
 CLASSES = ["flexural", "shear", "shear_flexural"]
 LABELS = set(CLASSES) | {"unknown"}
@@ -30,6 +30,10 @@ MODALITIES = {"photo", "map", "photo+map"}
 BEAM_TYPES = {"plain_RC", "FRC", "FRP_reinforced", "strengthened_FRP", "corroded", "fire_damaged",
               "deep_beam", "with_openings", "other"}
 LICENCES = {"CC BY 4.0", "CC BY 3.0"}
+# What an image shows besides the beam. mode_text: words that name a failure mode or mechanism;
+# other_text: specimen IDs, arrows, markers, dimensions; composite: several panels or specimens;
+# caption: a caption or panel letter in a margin.
+OVERLAYS = {"mode_text", "other_text", "composite", "caption"}
 PANELS = "data/panels/"
 
 
@@ -48,7 +52,8 @@ def names_specimen(sid, text):
 
 
 def group_ids(m):
-    return m["source_slug"].astype(str) + "::" + m["specimen_id"].astype(str)
+    """Specimen identity. One test programme can be reported in two articles, so group by programme."""
+    return m["programme"].astype(str) + "::" + m["specimen_id"].astype(str)
 
 
 def check_rows(m, root):
@@ -64,9 +69,14 @@ def check_rows(m, root):
         errors.append(f"evidence_scope: unexpected values {bad}")
     for i, r in m.iterrows():
         where = f"row {i} ({r['image_path']})"
-        for col in ("source_slug", "specimen_id", "citation"):
+        for col in ("source_slug", "programme", "specimen_id", "citation"):
             if not r[col].strip():
                 errors.append(f"{where}: empty {col}")
+        ov = r["overlay"].split(";")
+        if r["overlay"] != "none" and (set(ov) - OVERLAYS or len(set(ov)) != len(ov)):
+            errors.append(f"{where}: overlay must be 'none' or a list from {sorted(OVERLAYS)}")
+        if not r["programme"].startswith("paper-PMC"):
+            errors.append(f"{where}: programme must be a source_slug")
         labelled = r["label"] in CLASSES
         if labelled != (r["label_basis"] == "paper_text"):
             errors.append(f"{where}: label {r['label']!r} does not fit label_basis {r['label_basis']!r}")
@@ -166,21 +176,25 @@ def summary(m):
     return {
         "images": int(len(m)),
         "articles": int(m["source_slug"].nunique()),
+        "programmes": int(m["programme"].nunique()),
         "labels": {c: int((m["label"] == c).sum()) for c in CLASSES + ["unknown"]},
         "label_basis": {b: int((m["label_basis"] == b).sum()) for b in sorted(BASES)},
         "labelled": {
             "images": int(len(lab)),
             "specimens": int(g.nunique()),
             "articles": int(lab["source_slug"].nunique()),
+            "programmes": int(lab["programme"].nunique()),
             "specimens_per_class": {c: int(g[lab["label"] == c].nunique()) for c in CLASSES},
             "articles_per_class": {c: int(lab.loc[lab["label"] == c, "source_slug"].nunique())
                                    for c in CLASSES},
-            "single_class_articles": int((lab.groupby("source_slug")["label"].nunique() == 1).sum()),
+            "single_class_articles": int((lab.groupby("programme")["label"].nunique() == 1).sum()),
             "majority_rate": round(float(lab["label"].value_counts().max() / len(lab)), 4),
             "evidence_scope": {s: int((lab["evidence_scope"] == s).sum()) for s in sorted(SCOPES)},
             "modality_by_class": {c: {k: int(((lab["label"] == c) & (lab["modality"] == k)).sum())
                                       for k in sorted(MODALITIES)} for c in CLASSES},
         },
+        "overlay_free_labelled": int((lab["overlay"] == "none").sum()),
+        "overlay": {k: int(v) for k, v in m["overlay"].str.split(";").explode().value_counts().sort_index().items()},
         "licences": {k: int(v) for k, v in m["licence"].value_counts().sort_index().items()},
     }
 

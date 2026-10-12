@@ -68,7 +68,7 @@ def labelled_manifest():
 
 def source_line(m=None):
     m = labelled_manifest() if m is None else m
-    n_spec = m.groupby(["source_slug", "specimen_id"]).ngroups
+    n_spec = m.groupby(["programme", "specimen_id"]).ngroups
     return (f"{len(m)} images, {n_spec} specimens, "
             f"{m.source_slug.nunique()} open-access articles")
 

@@ -19,7 +19,8 @@ Image paths in both manifests are relative to the repository root.
 |---|---|
 | `image_path` | Path to the cropped panel, relative to the repository root. |
 | `source_slug` | Source article, `paper-<PMCID>`. |
-| `specimen_id` | Beam name used by the authors (for example `M1B`). The group id for splitting is `source_slug::specimen_id`. |
+| `programme` | Test programme. Usually equal to `source_slug`; two articles that report the same specimens share one value (PMC6415074 and PMC13257728). Article-level folds keep a programme together. |
+| `specimen_id` | Beam name used by the authors (for example `M1B`). The group id for splitting is `programme::specimen_id`. |
 | `label` | `flexural`, `shear`, `shear_flexural` or `unknown`. |
 | `label_basis` | `paper_text` (the authors state one of the three modes), `other_mode` (the authors state a mode outside the three classes, such as debonding or rupture of the strengthening; `label` is `unknown`) or `needs_manual` (the authors state no mode for this specimen). |
 | `licence` | Licence of the source article. All rows: CC BY 4.0. |
@@ -30,13 +31,14 @@ Image paths in both manifests are relative to the repository root.
 | `evidence_location` | Where in the article the quote is. |
 | `evidence_scope` | `per_specimen` (the quote or its location, such as a table row, names this beam) or `group_level` (the quote states a mode for a group of beams that includes it). Group-level labels are cruder. `make data-check` rejects `per_specimen` evidence that does not name the specimen. |
 | `image_ok` | `yes` after review of the crop. |
-| `modality` | `photo` (photograph of the beam face) or `map` (traced or drawn crack map). |
+| `modality` | `photo` (photograph of the beam face), `map` (traced or drawn crack map) or `photo+map` (one image holds both). |
+| `overlay` | What the image shows besides the beam, checked by eye for every image: `none`, or a `;`-list of `mode_text` (words that name a failure mode or mechanism, such as "Failure mode: shear"), `other_text` (specimen IDs, arrows, markers, dimensions), `composite` (several panels or specimens) and `caption` (a caption or panel letter in a margin). A classifier that can read text can read the label from `mode_text` images; report results on `overlay == none` as well. |
 
 `manifest_excluded.csv` has the columns `image_path`, `source_slug`, `specimen_id`, `reason`, `modality`.
 
 ## Counts
 
-375 images from 67 articles. 277 images from 257 specimens in 51 articles carry a label. 98 are `unknown`: 24 of them have an author-stated mode outside the three classes (`other_mode`). The counts are in `summary.json`. 77 panels are in the excluded manifest, 37 of them composite figures whose per-specimen crops are in `manifest.csv`. 142 labelled images have `group_level` evidence.
+371 images from 67 articles. 273 images from 254 specimens in 51 articles (50 test programmes) carry a label; 70 of them have no overlay. 98 are `unknown`: 24 of them have an author-stated mode outside the three classes (`other_mode`). 81 panels are in the excluded manifest, 37 of them composite figures whose per-specimen crops are in `manifest.csv`. 140 labelled images have `group_level` evidence. `summary.json` holds all counts and is regenerated from the manifest.
 
 | label | images | specimens | photo | map |
 |---|---|---|---|---|
@@ -56,6 +58,7 @@ Composite figures that show several specimens in one image were moved from `mani
 3. Each label row has a verbatim quote (`evidence_quote`) and its location. The quote was re-checked against the article XML (ignoring case and white space). A row that failed the check was set to `unknown` and `needs_manual`.
 4. `evidence_scope` records whether the quote names this specimen or a group.
 5. A label pass on 2026-10-12 re-read every row against its article. It moved 4 rows from `shear_flexural` to `shear`, labelled 6 rows that the articles state a mode for, and moved 24 rows to `unknown`. When the external strengthening governs failure (debonding, rupture of the FRP, TRM or SRG system, cover separation, bond failure), the row is `unknown` with `label_basis=other_mode`, even when the authors use the word "flexural". The notes column of each changed row starts its change with `audit 2026-10-12`. `label_changes_2026-10-12.csv` lists every changed row with its old and new values and the audit's reason.
+6. The same day, every image was checked by eye for text and panels (`overlay`). 62 caption bands in the margins were cropped away, 5 beams photographed on end were rotated to horizontal, and 12 photo-above-map images became `photo+map`. Four duplicates moved to the excluded manifest: one crack drawing that the source reuses for two specimens (both copies), and two second copies of one specimen's image. The notes column records each crop and rotation. No text was painted over: a painted box would itself be a cue.
 
 ## Caveats
 

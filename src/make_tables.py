@@ -25,7 +25,7 @@ def pct(x, d=1):
 
 def dataset_table(m):
     m = m[m.label.isin(C.CLASSES)].copy()
-    m["group"] = m.source_slug.astype(str) + "::" + m.specimen_id.astype(str)
+    m["group"] = m.programme.astype(str) + "::" + m.specimen_id.astype(str)
     rows = []
     for c in C.CLASSES:
         s = m[m.label == c]
