@@ -101,7 +101,7 @@ def loso_table(loso, preds):
 
 def timing_table(t):
     if t is None:
-        return ""
+        return "", None
     t = t[t.scheme == "specimen"].groupby("classifier").mean(numeric_only=True)
     lines = ["\\begin{table}[t]", "\\centering",
              "\\caption{Cost on one laptop CPU. Feature extraction is shared by all classifiers.}",

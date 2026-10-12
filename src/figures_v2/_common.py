@@ -3,6 +3,7 @@
 Reads persisted results only. Every figure script defines load / verify / draw
 and ends with finish(), which saves PNG (gated, with sidecar) then PDF.
 """
+import json
 import os
 import sys
 from pathlib import Path
@@ -39,7 +40,8 @@ CLF_NAMES = {"SVM": "SVM", "RandomForest": "Random forest", "kNN": "kNN",
 CLASSES = ["flexural", "shear", "shear_flexural"]
 CLASS_NAMES = {"flexural": "Flexural", "shear": "Shear",
                "shear_flexural": "Shear-flexural"}
-MAJORITY = 149 / 295
+# Share of the largest class among labelled images (data_check.py --write-summary).
+MAJORITY = json.loads((ROOT / "data/summary.json").read_text())["labelled"]["majority_rate"]
 
 
 def start(grid_axis="y", figsize=(12.0, 6.75)):
@@ -103,6 +105,12 @@ def finish(fig, fr, name, claim, quantity, source, caption, inputs, script):
     png = OUT / f"{name}.png"
     savefig_web(fig, png, caption=caption, inputs=inputs, script=script,
                 theme=THEME)
+    # savefig_web records the absolute path; keep the committed sidecar machine-independent.
+    side = png.with_name(png.name + ".meta.json")
+    if side.is_file():
+        meta = json.loads(side.read_text())
+        meta["path"] = png.relative_to(ROOT).as_posix()
+        side.write_text(json.dumps(meta, indent=2) + "\n")
     fig.savefig(OUT / f"{name}.pdf", facecolor=THEME.ground,
                 edgecolor="none")
     print(f"{name}: authored words (no ticks/axis labels) = {word_count(fig)}")

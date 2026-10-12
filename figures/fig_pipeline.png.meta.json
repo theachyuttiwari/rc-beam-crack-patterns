@@ -1,5 +1,5 @@
 {
-  "path": "/Users/achyuttiwari/Personal/career/research-papers/rc-beam-crack-patterns/figures/fig_pipeline.png",
+  "path": "figures/fig_pipeline.png",
   "script": "src/figures_v2/fig_pipeline.py",
   "git_sha": null,
   "rendered": "2026-10-12",

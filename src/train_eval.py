@@ -1,12 +1,20 @@
 """Train and evaluate five classical classifiers on HOG features.
 
-Schemes
-  specimen : StratifiedGroupKFold, groups = source::specimen_id (no specimen in both train and test)
+Schemes (outer split; inner grid-search split in brackets)
+  specimen : StratifiedGroupKFold, groups = source::specimen_id   [grouped by specimen]
+  article  : StratifiedGroupKFold, groups = source article         [grouped by article]
   image    : naive StratifiedKFold over images (LEAKY; reported only to quantify inflation)
-  loso     : leave-one-source-out (if >= 3 sources)
-Hyper-parameters are chosen by inner CV (GridSearchCV) on the training part only.
-Inner CV is always grouped: by specimen for the specimen/LOSO schemes, by base image
-for the image scheme (so flipped copies of one image never straddle an inner split).
+                                                                   [grouped by base image]
+  loso     : leave-one-source-out, one article held out at a time  [grouped by article]
+             (run if there are >= MIN_SOURCES_FOR_LOSO articles)
+Hyper-parameters are chosen by inner CV (GridSearchCV) on the training part only. The inner
+split uses the same grouping as the claim that the outer split tests, so model selection
+cannot reward article cues in the article and LOSO schemes. Grouping by base image keeps
+flipped copies of one image on one side of an inner split.
+
+Per-article files (loso.csv, per_source.csv) hold counts and accuracy only. Most articles
+contain one class, so a macro average over the three classes is not meaningful per article;
+pooled metrics are computed from predictions.csv (see make_tables.py).
 """
 import argparse
 import platform
@@ -21,7 +29,11 @@ import pandas as pd
 import sklearn
 import skimage
 import xgboost
+import cv2
+import scipy
+import joblib
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.exceptions import UndefinedMetricWarning
 from sklearn.metrics import (accuracy_score, confusion_matrix,
                              precision_recall_fscore_support)
 from sklearn.model_selection import (GridSearchCV, StratifiedGroupKFold,
@@ -40,6 +52,7 @@ import features as F
 import preprocess as P
 
 warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("default", category=UndefinedMetricWarning)  # keep: signals a degenerate metric
 SEED = C.SEED
 METRICS = ["accuracy", "precision_macro", "recall_macro", "f1_macro"]
 
@@ -59,12 +72,24 @@ def base_estimator(name):
     raise ValueError(name)
 
 
+def cpu_name():
+    """CPU model name on macOS and Linux; platform.processor() elsewhere."""
+    if platform.system() == "Darwin":
+        try:
+            return subprocess.check_output(["sysctl", "-n", "machdep.cpu.brand_string"],
+                                           text=True).strip()
+        except Exception:
+            pass
+    cpuinfo = Path("/proc/cpuinfo")
+    if cpuinfo.is_file():
+        for line in cpuinfo.read_text().splitlines():
+            if line.startswith("model name"):
+                return line.split(":", 1)[1].strip()
+    return platform.processor() or "unknown CPU"
+
+
 def hardware_string():
-    try:
-        cpu = subprocess.check_output(["sysctl", "-n", "machdep.cpu.brand_string"],
-                                      text=True).strip()
-    except Exception:
-        cpu = platform.processor()
+    cpu = cpu_name()
     return f"{cpu}; {platform.system()} {platform.release()} {platform.machine()}; Python {platform.python_version()}"
 
 
@@ -128,6 +153,11 @@ def scores(y, p):
     return dict(accuracy=accuracy_score(y, p), precision_macro=pr, recall_macro=rc, f1_macro=f1)
 
 
+def counts(y, p):
+    """Per-article summary: number of images, correct predictions, accuracy."""
+    return dict(n_correct=int((np.asarray(y) == np.asarray(p)).sum()), accuracy=accuracy_score(y, p))
+
+
 def pred_frame(m, te, p, scheme, name, fold, source=None):
     return pd.DataFrame(dict(
         scheme=scheme, classifier=name, fold=fold,
@@ -143,7 +173,7 @@ def main():
     ap.add_argument("--manifest", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--features", default="hog", choices=["hog", "orient"])
-    ap.add_argument("--pca", action="store_true", default=C.USE_PCA)
+    ap.add_argument("--pca", action=argparse.BooleanOptionalAction, default=C.USE_PCA)
     ap.add_argument("--no-blackhat", action="store_true")
     ap.add_argument("--no-clahe", action="store_true")
     ap.add_argument("--classifiers", default="SVM,RandomForest,kNN,DecisionTree,XGBoost")
@@ -169,7 +199,8 @@ def main():
         f.write(f"hardware: {hardware_string()}\n")
         f.write(f"python {sys.version.split()[0]}\nscikit-learn {sklearn.__version__}\n")
         f.write(f"scikit-image {skimage.__version__}\nxgboost {xgboost.__version__}\n")
-        f.write(f"numpy {np.__version__}\npandas {pd.__version__}\n")
+        f.write(f"numpy {np.__version__}\npandas {pd.__version__}\nscipy {scipy.__version__}\n")
+        f.write(f"opencv {cv2.__version__}\njoblib {joblib.__version__}\n")
         f.write(f"seed {SEED}\nfeatures {a.features} dim {X.shape[1]} pca {a.pca}\n")
         f.write(f"image size {C.IMG_H}x{C.IMG_W} blackhat {blackhat} clahe {clahe} "
                 f"hflip_augment {C.AUGMENT_HFLIP}\n")
@@ -208,14 +239,17 @@ def main():
         def _one(name, s):
             te = np.where(src_arr == s)[0]
             tr = np.where(src_arr != s)[0]
-            p, fit_s, pred_ms, best = fit_predict(name, X, Xf, y, groups, tr, te, a.pca, "loso")
-            return name, s, te, p, best
+            p, fit_s, pred_ms, best = fit_predict(name, X, Xf, y, src_arr, tr, te, a.pca, "loso")
+            return name, s, te, p, best, fit_s, pred_ms
 
         for name in names:
             outs = Parallel(n_jobs=a.loso_jobs)(delayed(_one)(name, s) for s in tqdm(sources, desc=f"loso/{name}"))
-            for name_, s, te, p, best in outs:
+            for name_, s, te, p, best, fit_s, pred_ms in outs:
                 loso_rows.append(dict(held_out_source=s, classifier=name_, n_test=len(te),
-                                      best_params=best, **scores(y[te], p)))
+                                      classes_in_test=len(np.unique(y[te])),
+                                      best_params=best, **counts(y[te], p)))
+                timing.append(dict(scheme="loso", classifier=name_, fold=s,
+                                   train_s=fit_s, predict_ms_per_image=pred_ms))
                 preds.append(pred_frame(m, te, p, "loso", name_, s))
         pd.DataFrame(loso_rows).to_csv(out / "loso.csv", index=False)
     else:
@@ -245,11 +279,12 @@ def main():
     for (name, src), d in P_all[P_all.scheme == "specimen"].groupby(["classifier", "source_slug"]):
         yt = d["true"].map(cls_idx).to_numpy()
         yp = d["pred"].map(cls_idx).to_numpy()
-        ps.append(dict(classifier=name, source_slug=src, n=len(d), **scores(yt, yp)))
+        ps.append(dict(classifier=name, source_slug=src, n=len(d),
+                       classes_in_test=len(np.unique(yt)), **counts(yt, yp)))
     pd.DataFrame(ps).to_csv(out / "per_source.csv", index=False)
 
-    t = pd.DataFrame(timing).groupby(["scheme", "classifier"], sort=False).mean(numeric_only=True)
-    t = t.drop(columns="fold").reset_index()
+    t = (pd.DataFrame(timing).drop(columns="fold")
+         .groupby(["scheme", "classifier"], sort=False).mean(numeric_only=True).reset_index())
     t.insert(2, "feature_extraction_s_per_image", feat_s)
     t["hardware"] = hardware_string()
     t.to_csv(out / "timing.csv", index=False)
@@ -258,8 +293,12 @@ def main():
     mean = pd.DataFrame(summ).query("fold == 'mean'").drop(columns="fold")
     print(mean.round(3).to_string(index=False))
     if loso_rows:
-        print("\nLOSO mean macro-F1:")
-        print(pd.DataFrame(loso_rows).groupby("classifier")["f1_macro"].mean().round(3).to_string())
+        print("\nLOSO, pooled over held-out articles (macro metrics over all images):")
+        lp = P_all[P_all.scheme == "loso"]
+        for name in names:
+            d = lp[lp.classifier == name]
+            s = scores(d["true"].map(cls_idx).to_numpy(), d["pred"].map(cls_idx).to_numpy())
+            print(f"  {name:13s} accuracy {s['accuracy']:.3f}  f1_macro {s['f1_macro']:.3f}")
 
 
 if __name__ == "__main__":

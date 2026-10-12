@@ -1,17 +1,23 @@
-PY ?= python
+# Use the project venv when it exists, else the python on PATH.
+PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 MANIFEST = data/manifest.csv
 
-.PHONY: setup data-check train tables figures figures-draft reproduce clean test
+.PHONY: setup data-check verify-quotes train tables figures figures-draft reproduce clean test
 
 setup:
-	python -m venv .venv
+	python3 -m venv .venv
 	.venv/bin/pip install -r requirements.txt
 
 data-check:
 	$(PY) src/data_check.py --manifest $(MANIFEST)
 
+# Check every evidence quote against the article full text (needs network the first time).
+verify-quotes:
+	$(PY) src/verify_quotes.py --manifest $(MANIFEST)
+
 # Three runs: main (HOG), HOG without black-hat, 18-bin orientation histogram.
-# Each run takes several minutes. Results overwrite results/<run>/.
+# The HOG runs take about 15 to 30 minutes each on a laptop, the orientation run about 1 minute.
+# Results overwrite results/<run>/.
 train:
 	$(PY) src/train_eval.py --manifest $(MANIFEST) --out results/main
 	$(PY) src/train_eval.py --manifest $(MANIFEST) --out results/noblackhat --no-blackhat
@@ -34,8 +40,8 @@ figures-draft:
 test:
 	$(PY) -m pytest -q
 
-reproduce: data-check train tables
+reproduce: data-check test train tables
 
 clean:
-	rm -rf .pytest_cache .mypy_cache
+	rm -rf .pytest_cache .mypy_cache figures/draft
 	find . -name __pycache__ -type d -prune -exec rm -rf {} +

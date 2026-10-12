@@ -1,5 +1,5 @@
 {
-  "path": "/Users/achyuttiwari/Personal/career/research-papers/rc-beam-crack-patterns/figures/fig_ablation.png",
+  "path": "figures/fig_ablation.png",
   "script": "src/figures_v2/fig_ablation.py",
   "git_sha": null,
   "rendered": "2026-10-12",

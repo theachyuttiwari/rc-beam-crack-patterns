@@ -47,7 +47,7 @@ Image paths in both manifests are relative to the repository root.
 
 The 295 labelled images come from 275 specimens in 50 articles. The majority class (flexural) is 50.5% of them. 33 of the 50 articles contribute one class only.
 
-Composite figures that show several specimens in one image were removed from `manifest.csv` on 2026-10-12 (`src/drop_composites.py`), because their per-specimen crops are already rows and a composite would put a test specimen inside a training image. `summary.json` holds the counts.
+Composite figures that show several specimens in one image were moved from `manifest.csv` to `manifest_excluded.csv` on 2026-10-12, because their per-specimen crops are already rows and a composite would put a test specimen inside a training image. Each excluded row gives its reason. `summary.json` holds the counts; `python src/data_check.py --write-summary` regenerates it from the manifest.
 
 ## Labelling protocol
 

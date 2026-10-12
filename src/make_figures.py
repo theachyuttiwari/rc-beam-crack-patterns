@@ -1,6 +1,6 @@
-"""Paper figures (vector PDF + 300-dpi PNG). Palette and rules follow the dataviz skill.
+"""Draft figures (vector PDF + 300-dpi PNG) in plain matplotlib. The paper figures are src/figures_v2/.
 
-Usage: python make_figures.py --manifest data/manifest.csv --results results/main --out figures
+Usage: python make_figures.py --manifest data/manifest.csv --results results/main --out figures/draft
 Figures that need results or images are skipped (or drawn as placeholders) when missing.
 """
 import argparse
@@ -20,7 +20,7 @@ import config as C
 import features as F
 import preprocess as P
 
-# ---- palette (dataviz reference, light mode) -------------------------------
+# ---- palette (light mode) -------------------------------
 SURFACE, INK, INK2, MUTED = "#fcfcfb", "#0b0b0b", "#52514e", "#898781"
 GRID, AXIS = "#e1e0d9", "#c3c2b7"
 BLUE, ORANGE, AQUA, YELLOW, MAGENTA = "#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4"
@@ -99,7 +99,7 @@ def fig_samples(out, m, n=4):
     for r, c in enumerate(C.CLASSES):
         have = None
         if m is not None:
-            d = m[m.label == c].drop_duplicates("specimen_id")
+            d = m[m.label == c].assign(_g=m.source_slug + "::" + m.specimen_id.astype(str)).drop_duplicates("_g")
             have = d.head(n)
         for j in range(n):
             ax = axes[r, j]
@@ -243,25 +243,6 @@ def fig_split(out):
     save(fig, out, "fig_split")
 
 
-def fig_loso(out, res, m):
-    d = pd.read_csv(res / "loso.csv")
-    srcs = list(d["held_out_source"].unique())
-    fig, ax = plt.subplots(figsize=(W2, 2.6))
-    x = np.arange(len(srcs)); bw = 0.8 / len(CLF_ORDER)
-    for i, c in enumerate(CLF_ORDER):
-        v = [d[(d.classifier == c) & (d.held_out_source == s)]["f1_macro"].mean() for s in srcs]
-        ax.bar(x + (i - 2) * bw, v, bw - 0.02, color=CLF_COL[c], hatch=HATCHES[c], edgecolor=SURFACE, lw=0.6,
-               label=CLF_SHORT[c])
-    ax.set_xticks(x); ax.set_xticklabels(srcs)
-    ax.set_ylim(0, 1.05); ax.set_ylabel("Macro F1 on held-out source")
-    ax.set_xlabel("Source held out (trained on the others)")
-    ax.yaxis.grid(True, color=GRID, lw=0.5); ax.set_axisbelow(True)
-    ax.legend(ncol=5, frameon=False, loc="upper center", bbox_to_anchor=(0.5, 1.15))
-    if is_synthetic(m):
-        synth_banner(fig)
-    save(fig, out, "fig_loso")
-
-
 def fig_crack_types(out):
     """Simply supported beam, four-point bending: (a) flexural, (b) shear, (c) flexure-shear."""
     H, xs1, xs2, L = 0.8, 3.5, 6.5, 10.0   # beam depth, load points, span (support at 0.5 and 9.5)
@@ -340,10 +321,6 @@ def main():
         fig_confusion(out, res, m)
     else:
         print("no results/metrics.csv: skipped fig_metrics, fig_confusion")
-    if (res / "loso.csv").exists():
-        fig_loso(out, res, m)
-    else:
-        print("no results/loso.csv: skipped fig_loso")
 
 
 if __name__ == "__main__":

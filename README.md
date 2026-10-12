@@ -29,7 +29,7 @@ The 70% result comes from beams of the same test programme appearing on both sid
 | `data/panels/<PMCID>/` | The cropped images. |
 | `data/README.md` | Column schema, labelling protocol, counts, caveats. |
 | `data/SOURCES.md` | One row per source article: citation, DOI, licence, image counts. |
-| `src/` | Code: `config.py`, `preprocess.py`, `features.py`, `train_eval.py`, `make_tables.py`, `make_ablation_table.py`, `data_check.py`, `drop_composites.py`; draft figure scripts `make_figures.py`, `make_figures_extra.py`. |
+| `src/` | Code: `config.py`, `preprocess.py`, `features.py`, `train_eval.py`, `make_tables.py`, `make_ablation_table.py`, `data_check.py`, `verify_quotes.py`; draft figure scripts `make_figures.py`, `make_figures_extra.py`. |
 | `src/figures_v2/` | The eight paper figures, one script each. Each script reads result files, re-checks the numbers it draws, and writes a `.meta.json` sidecar. |
 | `tests/` | pytest suite. |
 | `.github/workflows/ci.yml` | Runs the data check and the tests on every push. |

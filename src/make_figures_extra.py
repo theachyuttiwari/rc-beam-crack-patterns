@@ -54,8 +54,8 @@ def fig_schemes(out, res, manifest):
     fig, axes = plt.subplots(1, 2, figsize=(W2, 2.4), sharey=True)
     x = np.arange(len(CLF_ORDER))
     for ax, (k, title) in zip(axes, [("accuracy", "Accuracy"), ("f1_macro", "Macro F1")]):
-        ax.axhline(maj if k == "accuracy" else 1 / 3 * 0 + np.nan, color=MUTED, lw=0.8, ls="--")
-        if k == "accuracy":
+        if k == "accuracy":  # the majority-class line applies to accuracy only
+            ax.axhline(maj, color=MUTED, lw=0.8, ls="--")
             ax.text(len(CLF_ORDER) - 0.6, maj + 0.015, "majority class", color=MUTED, fontsize=7, ha="right")
         for j, (scheme, lab, col, mk) in enumerate(SCHEMES):
             off = (j - 1.5) * 0.18
