@@ -1,9 +1,9 @@
 {
   "path": "figures/fig_samples.png",
   "script": "src/figures_v2/fig_samples.py",
-  "git_sha": null,
+  "git_sha": "d898c42",
   "rendered": "2026-10-12",
-  "caption": "Example images for each class: two photographs and two traced crack maps per row, from different articles, scaled to equal cells. Row labels give the number of images in the class.",
+  "caption": "Example images for each class: two photographs and two traced crack maps per row, from different articles, scaled to equal cells. Row labels give the number of images in the class. Images (numbered in the figure) are cropped and rescaled from: (1) Rahim et al. (2020), doi:10.3390/ma13122804, specimen B1b, CC BY 4.0; (2) Hadi et al. (2026), doi:10.3390/ma19173660, specimen CTRM-1-A, CC BY 4.0; (3) Zhu et al. (2022), doi:10.3390/polym14071399, specimen S77, CC BY 4.0; (4) Thamrin et al. (2021), doi:10.3390/polym13162738, specimen G6C2, CC BY 4.0; (5) Liu and Thermou (2024), doi:10.3390/ma17215227, specimen B-N, CC BY 4.0; (6) Gu et al. (2024), doi:10.3390/ma17112566, specimen DL-0.5-3m, CC BY 4.0; (7) Han et al. (2019), doi:10.3390/ma12050837, specimen TH-3, CC BY 4.0; (8) Ibrahim et al. (2021), doi:10.3390/ma14133659, specimen St-2LFRP-On (#10), CC BY 4.0; (9) Hisbani et al. (2025), doi:10.1038/s41598-025-00146-8, specimen M4D6-P6, CC BY 4.0; (10) Zhao et al. (2018), doi:10.3390/ma11091682, specimen S0000, CC BY 4.0; (11) Srimahachota et al. (2020), doi:10.3390/ma13194276, specimen RC1-NF, CC BY 4.0; (12) Gu et al. (2024), doi:10.3390/ma17112566, specimen DL-0.25-2m, CC BY 4.0.",
   "inputs": [
     "data/manifest.csv"
   ],
@@ -19,14 +19,38 @@
     "Source: 295 images, 275 specimens, 50 open-access articles",
     "Flexural,\n149 images",
     "Shear,\n115 images",
-    "Shear-flexural,\n31 images"
+    "Shear-flexural,\n31 images",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12"
   ],
   "authored_strings": [
     "Each class mixes photographs and traced crack maps; shear-flexural is the rarest.",
     "Source: 295 images, 275 specimens, 50 open-access articles",
     "Flexural,\n149 images",
     "Shear,\n115 images",
-    "Shear-flexural,\n31 images"
+    "Shear-flexural,\n31 images",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12"
   ],
   "figsize_in": [
     12.0,

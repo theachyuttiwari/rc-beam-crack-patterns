@@ -1,9 +1,9 @@
 {
   "path": "figures/fig_hog.png",
   "script": "src/figures_v2/fig_hog.py",
-  "git_sha": null,
+  "git_sha": "d898c42",
   "rendered": "2026-10-12",
-  "caption": "One image per class: the original, the preprocessed 128 by 256 image (CLAHE, resize, blur, black-hat) and the HOG picture computed from it, drawn with the project's own preprocessing and feature code.",
+  "caption": "One image per class: the original, the preprocessed 128 by 256 image (CLAHE, resize, blur, black-hat) and the HOG picture computed from it, drawn with the project's own preprocessing and feature code. Images (numbered in the figure) are cropped and rescaled from: (1) Rahim et al. (2020), doi:10.3390/ma13122804, specimen B1b, CC BY 4.0; (2) Liu and Thermou (2024), doi:10.3390/ma17215227, specimen B-N, CC BY 4.0; (3) Hisbani et al. (2025), doi:10.1038/s41598-025-00146-8, specimen M4D6-P6, CC BY 4.0.",
   "inputs": [
     "data/manifest.csv"
   ],
@@ -22,7 +22,10 @@
     "HOG",
     "Flexural",
     "Shear",
-    "Shear-flexural"
+    "Shear-flexural",
+    "1",
+    "2",
+    "3"
   ],
   "authored_strings": [
     "Preprocessing makes cracks bright lines, and HOG records their direction in every 16-pixel cell.",
@@ -32,7 +35,10 @@
     "HOG",
     "Flexural",
     "Shear",
-    "Shear-flexural"
+    "Shear-flexural",
+    "1",
+    "2",
+    "3"
   ],
   "figsize_in": [
     12.0,

@@ -2,8 +2,8 @@
 import cv2
 import numpy as np
 
-from _common import (CLASSES, CLASS_NAMES, HAIR, INK, ROOT, finish, frame,
-                     labelled_manifest, source_line, start)
+from _common import (CLASSES, CLASS_NAMES, HAIR, INK, badge, finish, frame,
+                     image_credits, labelled_manifest, source_line, start)
 
 SCRIPT = __file__
 CELL_W, CELL_H = 400, 200        # 2:1 cell, the pipeline's own aspect
@@ -81,6 +81,7 @@ def draw(m):
     rgap = (H - 3 * ch) / 2
     n_total = m.label.value_counts()
     picks = pick_all(m)
+    shown = []
     for r, label in enumerate(CLASSES):
         y = H - (r + 1) * ch - r * rgap
         fr.text(0.0, y + ch / 2, f"{CLASS_NAMES[label]},\n{n_total[label]} images",
@@ -94,13 +95,15 @@ def draw(m):
             ax.set_xticks([]); ax.set_yticks([]); ax.grid(False)
             for sp in ax.spines.values():
                 sp.set_visible(True); sp.set_color(HAIR); sp.set_linewidth(1.5)
-    return fig, fr
+            shown.append(row)
+            badge(ax, len(shown))
+    return fig, fr, shown
 
 
 if __name__ == "__main__":
     m = labelled_manifest()
     verify(m)
-    fig, fr = draw(m)
+    fig, fr, shown = draw(m)
     finish(fig, fr, "fig_samples",
            claim="Each class mixes photographs and traced crack maps; shear-flexural is the rarest.",
            quantity="",
@@ -109,4 +112,4 @@ if __name__ == "__main__":
                     "traced crack maps per row, from different articles, "
                     "scaled to equal cells. Row labels give the number of "
                     "images in the class."),
-           inputs=["data/manifest.csv"], script=SCRIPT)
+           inputs=["data/manifest.csv"], script=SCRIPT, credits=image_credits(shown))

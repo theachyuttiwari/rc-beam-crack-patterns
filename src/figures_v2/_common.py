@@ -5,6 +5,7 @@ and ends with finish(), which saves PNG (gated, with sidecar) then PDF.
 """
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -99,9 +100,48 @@ def word_count(fig):
     return n
 
 
-def finish(fig, fr, name, claim, quantity, source, caption, inputs, script):
+def short_credit(citation):
+    """'Liu X, Thermou GE (2024) Title. Journal. doi:10.x/y' -> 'Liu and Thermou (2024), doi:10.x/y'."""
+    authors, year = re.match(r"^(.+?) \((\d{4})\) ", citation).groups()
+    etal = authors.endswith(" et al.")
+    names = [re.sub(r"\s+[A-Z]{1,3}$", "", a.strip())
+             for a in authors.removesuffix(" et al.").split(",")]
+    if len(names) == 1 and not etal:
+        who = names[0]
+    elif len(names) == 2 and not etal:
+        who = f"{names[0]} and {names[1]}"
+    else:
+        who = f"{names[0]} et al."
+    doi = re.search(r"doi:(\S+)", citation).group(1).rstrip(".")
+    return f"{who} ({year}), doi:{doi}"
+
+
+def image_credits(rows):
+    """Numbered credit lines (CC BY attribution) for the dataset images in a figure."""
+    return [f"({i}) {short_credit(r.citation)}, specimen {r.specimen_id}, {r.licence}"
+            for i, r in enumerate(rows, 1)]
+
+
+def badge(ax, n):
+    """Number an image cell; the number keys it to its credit line."""
+    ax.text(0.03, 0.95, str(n), transform=ax.transAxes, ha="left", va="top",
+            fontsize=14, fontweight="bold", color=INK,
+            bbox=dict(boxstyle="round,pad=0.2", fc="white", ec=HAIR, lw=1))
+
+
+def finish(fig, fr, name, claim, quantity, source, caption, inputs, script,
+           credits=None):
+    """credits: image_credits() lines. They go into the caption and figures/<name>_credits.md."""
     web_titles(fr, claim=claim, quantity=quantity, source=source, theme=THEME)
     OUT.mkdir(exist_ok=True)
+    if credits:
+        caption += (" Images (numbered in the figure) are cropped and rescaled from: "
+                    + "; ".join(credits) + ".")
+        (OUT / f"{name}_credits.md").write_text(
+            f"# Image credits for {name}\n\n"
+            "Each number is the badge on an image cell. Every image is cropped and rescaled "
+            "from the open-access article cited; full citations are in data/SOURCES.md.\n\n"
+            + "".join(f"- {c}\n" for c in credits))
     png = OUT / f"{name}.png"
     savefig_web(fig, png, caption=caption, inputs=inputs, script=script,
                 theme=THEME)

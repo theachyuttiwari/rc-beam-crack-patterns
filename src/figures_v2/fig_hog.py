@@ -1,6 +1,6 @@
 """fig_hog: original | preprocessed | HOG picture, one image per class."""
-from _common import (CLASSES, CLASS_NAMES, HAIR, INK, finish, frame,
-                     labelled_manifest, source_line, start)
+from _common import (CLASSES, CLASS_NAMES, HAIR, INK, badge, finish, frame,
+                     image_credits, labelled_manifest, source_line, start)
 from fig_samples import fit_cell, load_rgb, pick_all
 import config as C  # noqa: E402
 import features as F  # noqa: E402
@@ -23,12 +23,14 @@ def draw(m):
     cw = 2 * ch
     label_w = W - 3 * cw - 2 * gap
     picks = pick_all(m)
+    shown = []
     for c, head in enumerate(("Image", "Preprocessed", "HOG")):
         x = label_w + c * (cw + gap)
         fr.text(x + cw / 2, H, head, ha="center", va="top", fontsize=15,
                 fontweight="bold", color=INK)
     for r, label in enumerate(CLASSES):
         row = picks[label][0]
+        shown.append(row)
         rgb = load_rgb(row.image_path)
         pre = P.preprocess(row.image_path)               # 128 x 256, uint8
         hog = F.hog_visualisation(pre)
@@ -46,13 +48,15 @@ def draw(m):
             ax.set_xticks([]); ax.set_yticks([]); ax.grid(False)
             for sp in ax.spines.values():
                 sp.set_visible(True); sp.set_color(HAIR); sp.set_linewidth(1.5)
-    return fig, fr
+            if c == 0:
+                badge(ax, len(shown))
+    return fig, fr, shown
 
 
 if __name__ == "__main__":
     verify()
     m = labelled_manifest()
-    fig, fr = draw(m)
+    fig, fr, shown = draw(m)
     finish(fig, fr, "fig_hog",
            claim="Preprocessing makes cracks bright lines, and HOG records their direction in every 16-pixel cell.",
            quantity="",
@@ -61,4 +65,4 @@ if __name__ == "__main__":
                     "128 by 256 image (CLAHE, resize, blur, black-hat) and "
                     "the HOG picture computed from it, drawn with the "
                     "project's own preprocessing and feature code."),
-           inputs=["data/manifest.csv"], script=SCRIPT)
+           inputs=["data/manifest.csv"], script=SCRIPT, credits=image_credits(shown))
