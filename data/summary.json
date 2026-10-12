@@ -15,11 +15,11 @@
  },
  "labelled": {
   "images": 273,
-  "specimens": 254,
+  "specimens": 253,
   "articles": 51,
   "programmes": 50,
   "specimens_per_class": {
-   "flexural": 125,
+   "flexural": 124,
    "shear": 105,
    "shear_flexural": 24
   },

@@ -149,6 +149,9 @@ def check(manifest_path, root=REPO_ROOT, verbose=True):
                     errors.append(f"image in no manifest: {rel}")
 
     sources = data_dir / "SOURCES.md"
+    if sources.is_file() and exc_path.is_file() and sources.read_text() != sources_md(
+            m, pd.read_csv(exc_path, keep_default_na=False, dtype=str)):
+        errors.append("SOURCES.md is out of date: run python src/data_check.py --write-summary")
     if sources.is_file():
         credited = set(re.findall(r"PMC\d+", sources.read_text()))
         used = {s.replace("paper-", "") for s in m["source_slug"]}
@@ -199,11 +202,40 @@ def summary(m):
     }
 
 
+SOURCES_HEAD = """# Sources and attribution
+
+Every image in `panels/` is a crop of a figure from one of the open-access articles below. All are licensed CC BY. The changes are cropping (some composite figures were split into panels, and caption bands in the margins were cut away) and, for five images, a 90-degree rotation; the notes column of the manifest records each. Credit the original authors when you reuse an image.
+
+This file is generated from the manifests by `python src/data_check.py --write-summary`. Columns: `images used` = rows in `manifest.csv`; `excluded` = rows in `manifest_excluded.csv` (kept on disk for audit only).
+
+| PMCID | Citation | DOI | Licence | Images used | Excluded |
+|---|---|---|---|---|---|
+"""
+
+
+def sources_md(m, x):
+    """SOURCES.md from both manifests: one row per article that has an image in either."""
+    both = pd.concat([m.assign(_used=1, _exc=0), x.assign(_used=0, _exc=1)], ignore_index=True)
+    rows = []
+    for slug, d in sorted(both.groupby("source_slug"), key=lambda kv: kv[0]):
+        cit = d["citation"].iloc[0]
+        doi = re.search(r"doi:(\S+)$", cit)
+        rows.append(f"| {slug.replace('paper-', '')} | {cit} | "
+                    f"{'https://doi.org/' + doi.group(1) if doi else ''} | {d['licence'].iloc[0]} | "
+                    f"{int(d['_used'].sum())} | {int(d['_exc'].sum())} |\n")
+    return SOURCES_HEAD + "".join(rows)
+
+
 def write_summary(manifest_path):
     m = pd.read_csv(manifest_path, keep_default_na=False, dtype=str)
     out = Path(manifest_path).parent / "summary.json"
     out.write_text(json.dumps(summary(m), indent=1) + "\n")
     print(f"wrote {out}")
+    exc = Path(manifest_path).parent / "manifest_excluded.csv"
+    if exc.is_file():
+        x = pd.read_csv(exc, keep_default_na=False, dtype=str)
+        (out.parent / "SOURCES.md").write_text(sources_md(m, x))
+        print(f"wrote {out.parent / 'SOURCES.md'}")
 
 
 def main(argv=None):

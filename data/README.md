@@ -34,7 +34,7 @@ Image paths in both manifests are relative to the repository root.
 | `modality` | `photo` (photograph of the beam face), `map` (traced or drawn crack map) or `photo+map` (one image holds both). |
 | `overlay` | What the image shows besides the beam, checked by eye for every image: `none`, or a `;`-list of `mode_text` (words that name a failure mode or mechanism, such as "Failure mode: shear"), `other_text` (specimen IDs, arrows, markers, dimensions), `composite` (several panels or specimens) and `caption` (a caption or panel letter in a margin). A classifier that can read text can read the label from `mode_text` images; report results on `overlay == none` as well. |
 
-`manifest_excluded.csv` has the columns `image_path`, `source_slug`, `specimen_id`, `reason`, `modality`.
+`manifest_excluded.csv` has the columns `image_path`, `source_slug`, `specimen_id`, `reason`, `modality`, `label`, `label_basis`, `licence`, `citation`, `notes`, `beam_type`, `evidence_quote`, `evidence_location`, `evidence_scope`, `image_ok`. `reason` says why the row is excluded; the other columns are as in `manifest.csv`.
 
 ## Counts
 
@@ -49,7 +49,7 @@ Image paths in both manifests are relative to the repository root.
 
 The 295 labelled images come from 275 specimens in 50 articles. The majority class (flexural) is 50.5% of them. 33 of the 50 articles contribute one class only.
 
-Composite figures that show several specimens in one image were moved from `manifest.csv` to `manifest_excluded.csv` on 2026-10-12, because their per-specimen crops are already rows and a composite would put a test specimen inside a training image. Each excluded row gives its reason. `summary.json` holds the counts; `python src/data_check.py --write-summary` regenerates it from the manifest.
+Composite figures that show several specimens in one image were moved from `manifest.csv` to `manifest_excluded.csv` on 2026-10-12, because their per-specimen crops are already rows and a composite would put a test specimen inside a training image. Each excluded row gives its reason. `summary.json` and `SOURCES.md` hold the counts; `python src/data_check.py --write-summary` regenerates both from the manifests.
 
 ## Labelling protocol
 

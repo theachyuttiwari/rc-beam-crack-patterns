@@ -1,11 +1,14 @@
-hardware: Apple M5 Pro; Darwin 27.0.0 arm64; Python 3.12.14
-python 3.12.14
+hardware: Apple M5 Pro; Darwin 27.0.0 arm64; Python 3.14.5
+python 3.14.5
 scikit-learn 1.9.1
 scikit-image 0.26.0
 xgboost 3.4.1
 numpy 2.5.4
 pandas 3.0.6
+scipy 1.18.1
+opencv 5.0.0
+joblib 1.6.0
 seed 42
 features orient dim 18 pca False
 image size 128x256 blackhat True clahe True hflip_augment False
-n_images 295 n_specimens 275 n_sources 50
+n_images 273 n_specimens 253 n_programmes 50
