@@ -46,7 +46,7 @@ plt.rcParams.update({
 
 
 def save(fig, out, name):
-    fig.savefig(out / f"{name}.pdf", bbox_inches="tight")
+    fig.savefig(out / f"{name}.pdf", bbox_inches="tight", metadata={"CreationDate": None})  # reproducible bytes
     fig.savefig(out / f"{name}.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
     print("wrote", name)
