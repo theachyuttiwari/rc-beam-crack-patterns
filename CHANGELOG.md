@@ -15,6 +15,7 @@
 - Print figures for the paper in `figures/print/` (`make figures-print`): IEEE widths, 8-pt text, TrueType fonts. The main figure shows the source prior. Example images carry no printed failure-mode words; `src/picks.py` shares the choice and the credits between both figure sets.
 - Figure checks follow the corrected data; claims that no longer hold were rewritten.
 - New paper title; `CITATION.cff` no longer names a conference.
+- `pillow` 12.3.0 → 13.0.0 for security fixes (41 Dependabot advisories). The pipeline reads images with OpenCV, so results do not depend on it; `make figures-print` rebuilds byte-identical PDFs.
 
 ## 0.1.0 - 2026-10-12
 
