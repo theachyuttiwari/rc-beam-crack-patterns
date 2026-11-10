@@ -4,7 +4,7 @@ scikit-learn==1.9.1
 scikit-image==0.26.0
 xgboost==3.4.1
 matplotlib==3.11.2
-pillow==12.3.0
+pillow==13.0.0
 opencv-python-headless==5.0.0.93
 pandas==3.0.6
 tqdm==4.70.1
